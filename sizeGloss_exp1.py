@@ -2817,10 +2817,627 @@ try:
     #########################
     ## TASK: shineMapping  ##
     #########################
-    # if task_var == 'shineMapping':
-    #     try:
-    #     except:
-    #         core.quit()
+    if task_var == 'shineMapping':
+        try:
+
+            def saveData(dataDict):
+
+                # try:
+                #     dir = '/Users/james/Desktop/sizeGloss/tasks/startExperiment/';
+                #     PrefixFile = 'LogFilePrefix.txt';
+                #     with open(dir+PrefixFile, 'r') as fd:
+                #          LogFilePrefix = fd.read().splitlines();
+                #          LogFilePrefix = LogFilePrefix[0];
+                # except:
+                #     LogFilePrefix = 'NULL';
+
+
+                dataDir = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/subjData/';
+                fileName = 'sizeGloss_DATA_{}_shineMapping'.format(LogFilePrefix);
+
+                pickleName = fileName;
+                with open(dataDir + pickleName, 'wb') as fp:
+                    pickle.dump(dataDict, fp)
+
+                with open (dataDir + pickleName, 'rb') as fp:
+                    data = pickle.load(fp)
+
+                cols = [
+                    'pointKey',
+                    'image',
+                    'xyCoords',
+                    'stim.xys',
+                    'opacity'
+                ];
+
+                df = pd.DataFrame.from_dict(data, orient='index')
+                df.columns = cols;
+
+                csvName = fileName + '.csv';
+                df.to_csv(dataDir + csvName, index = False, header=True)
+
+            IMAGE_KEY = '/Users/james/Desktop/sizeGloss/tasks/glossMatching/files/lists/stimuli_key.txt';
+            with open(IMAGE_KEY, 'r') as fd:
+                imageKey = fd.read().splitlines();
+            imageDict = {};
+            for index in range(len(imageKey)):
+                image = imageKey[index];
+                nuissance = '.jpg.png-gaussian.png';
+                image = image.replace(nuissance, '');
+                element = {index: {'image': image}};
+                imageDict.update(element);
+            def findImageIndex(imageName):
+                try:
+                    for index in range(len(imageDict)):
+                        image = imageDict[index]['image']
+                        if imageName == image:
+                            return(index)
+                except:
+                    index = 'NULL'
+                    return
+
+
+            def saveGrid(gridInfo, image):
+                try:
+                    dir = '/Users/james/Desktop/sizeGloss/tasks/startExperiment/';
+                    PrefixFile = 'LogFilePrefix.txt';
+                    with open(dir+PrefixFile, 'r') as fd:
+                         LogFilePrefix = fd.read().splitlines();
+                         LogFilePrefix = LogFilePrefix[0];
+                except:
+                    LogFilePrefix = 'NULL';
+
+
+                nuissance = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/files/size/';
+                image = image.replace(nuissance, '')
+                nuissance = '.jpg.png-gaussian.png';
+                image = image.replace(nuissance, '')
+                dataDir = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/subjData/';
+
+                fileName = 'sizeGloss_DATA_SUBJ{}_IMAGE-{}_shineMapping'.format(LogFilePrefix, image);
+                pickleName = fileName + '.pickle';
+                with open(dataDir + pickleName, 'wb') as fp:
+                    pickle.dump(gridInfo, fp)
+
+                with open (dataDir + pickleName, 'rb') as fp:
+                    data = pickle.load(fp)
+
+                df = pd.DataFrame.from_dict(data, orient='index')
+                # df = pd.DataFrame.from_dict(data)
+                # df.columns = cols;
+
+                csvName = fileName + '.csv';
+                df.to_csv(dataDir + csvName, index = False, header=True)
+
+
+            win = visual.Window(
+                size = (1280, 1024),
+                color='grey',
+                fullscr = True,
+                monitor = 'testMonitor',
+                units='pix')
+
+
+            userLabel = 'object name';
+            objectName = visual.TextStim( win,
+                                    userLabel,
+                                    height = 30,
+                                    # wrapWidth=0,
+                                    alignVert='center',
+                                    alignHoriz='center',
+                                    units='pix');
+            objectName.pos = (0, 365);
+
+
+            im = visual.ImageStim(
+                    win,
+                    image= '/Users/james/Desktop/sizeGloss/tasks/shineMapping/taskTools/grid.png',
+                    size = (500, 500),
+                    units = 'pix');
+            grid = visual.ImageStim(win=win, image='/Users/james/Desktop/sizeGloss/tasks/shineMapping/taskTools/grid.png');
+            bWidth= 600
+            bHeight= 600
+            border = visual.Rect(win=win,
+                width=bWidth,
+                height=bHeight,
+                fillColor=None,
+                lineColor='black',
+                units='pix');
+
+            def quit():
+                QUIT_KEYS = event.getKeys('0')
+                if len(QUIT_KEYS) > 0:
+                    core.quit();
+                    win.close();
+
+
+            # array of coordinates for each element
+            xMIN = (575/2) * -1; xMAX = (575/2);
+            yMIN = (575/2) * -1; yMAX = (575/2);
+            xDist, yDist = (25, 25);
+            xDim = np.linspace(xMIN, xMAX, xDist)
+            yDim = np.linspace(yMIN, yMAX, yDist)
+            xCoords, yCoords = np.meshgrid(xDim, yDim, indexing = 'ij')
+            xyCoords = np.transpose(np.vstack([xCoords.ravel(), yCoords.ravel()]))
+            num_check = len(xyCoords)
+            check_size = [23, 23]
+            location = [0, 0]
+            loc = np.array(location) + np.array(check_size) // 2
+            # array of rgbs for each element (2D)
+            colors = np.random.random((num_check, 3))
+            colors = colors * 0;
+            colors = colors + [255, 130, 0];
+            # array of rgbs for each element (2D)
+            colors = np.random.random((num_check, 3))
+            stim = visual.ElementArrayStim(win,
+                                           xys=xyCoords,
+                                           colors='yellow',
+                                           nElements=len(xyCoords),
+                                           elementMask=None,
+                                           elementTex=None,
+                                           colorSpace='rgb',
+                                           sizes=(check_size[0],check_size[1]));
+
+            stim.size = (check_size[0] * num_check,
+                         check_size[1] * num_check)
+
+            gridInfo = {};
+            for i in range(len(xyCoords)):
+                stim.opacities[i] = 0.0;
+                key = 'p' + str(i);
+                element = {key: {
+                            'image': None,
+                            'index': i,
+                            'xyCoords': None,
+                            'stim.xys': None,
+                            'opacity': 0.0,
+                            'clickCount':None}}
+                gridInfo.update(element);
+
+            mouse = event.Mouse();
+
+            class dictObj(dict):
+                def __init__(self):
+                    self = dict()
+                def add(self, key, value):
+                    self[key] = value
+            point_dict = dictObj();
+            for i in range(len(xyCoords)):
+                point_dict.add('p'+str(i), (xyCoords[i][0], xyCoords[i][1]));
+
+            def getClicked_dict():
+                nxClicked_dict = dictObj();
+                for i in range(len(xyCoords)):
+                    nxClicked_dict.add('p'+str(i), 0);
+                return nxClicked_dict
+
+            nxClicked_dict = getClicked_dict();
+
+            xMIN = (600/2) * -1; xMAX = (600/2);
+            yMIN = (600/2) * -1; yMAX = (600/2);
+
+
+            vm = visual.CustomMouse(win,
+                leftLimit=xMIN,
+                topLimit=yMAX,
+                rightLimit=xMAX,
+                bottomLimit=yMIN,
+                showLimitBox=False,
+                clickOnUp=True);
+
+            pointer = visual.Rect(win=win,
+                width=22,
+                height=22,
+                fillColor='blue',
+                lineColor=None,
+                units='pix');
+            pointer.opacity = 0;
+            vm.pointer = pointer;
+
+            block = visual.Rect(win=win,
+                width=600,
+                height=50,
+                lineColor='gray',
+                lineWidth=1.0,
+                fillColor='gray',
+                # lineColor='grey',
+                units='pix');
+            # block.setOpacity(0);
+            block.pos = (0, 365);
+
+            endBlock = visual.Rect(win=win,
+                width=600,
+                height=600,
+                lineColor='grey',
+                lineWidth=3.0,
+                fillColor='grey',
+                # lineColor='grey',
+                units='pix');
+            endBlock.setOpacity(0);
+
+            endText = visual.TextStim(win,
+                                    text='',
+                                    height = 30,
+                                    # wrapWidth=0,
+                                    alignVert='center',
+                                    alignHoriz='center',
+                                    units='pix');
+            endText.pos = (2000, 2000);
+            endText.setOpacity(0);
+
+            win.mouseVisible = True;
+
+            def save_background(key):
+                dataDir = './files/data/shineMapped/'
+                key = key.replace('./files/size/', '')
+                key = key.replace('.png', '')
+                mappedFile = key + '_' + LOG_PREFIX + '_shineMapped.png';
+                mappedFile = dataDir + mappedFile;
+                win.getMovieFrame(buffer='front');
+                win.saveMovieFrames(mappedFile);
+                return mappedFile
+
+            def update_background(mappedFile):
+                background = visual.ImageStim(win, image=mappedFile);
+                return background
+
+            clickCount_block = visual.Rect(win=win,
+                width=175,
+                height=100,
+                fillColor='grey',
+                lineColor='grey',
+                units='pix');
+            clickCount_block.pos = (0, -415)
+
+            clickCount_text = visual.TextStim( win,
+                                    height = 30,
+                                    text = '',
+                                    units='pix');
+            clickCount_text.pos = (0, -415)
+
+            message_block = visual.Rect(win=win,
+                width=250,
+                height=80,
+                fillColor='grey',
+                lineColor='grey',
+                units='pix');
+            message_block.pos = (2000, 2000);
+
+            message = visual.TextStim( win,
+                                    height = 30,
+                                    text = 'Are you sure?',
+                                    alignVert='center',
+                                    alignHoriz='center',
+                                    units='pix');
+            message.pos = (2000, 2000);
+            message.setOpacity = (0);
+
+            begin_block = visual.Rect(win=win,
+                width=250,
+                height=80,
+                fillColor='grey',
+                lineColor='grey',
+                units='pix');
+            begin_block.pos = (0, -415);
+
+            def mouse_pos(vm, mouse):
+                mouse_x, mouse_y = mouse.getPos()[0], mouse.getPos()[1]
+                return mouse_x, mouse_y
+
+            def calc_distances(vm, dictionary, mouse):
+                mouse_x, mouse_y = mouse_pos(vm, mouse)
+                for i in dictionary:
+                    point_key = i;
+                    point_x, point_y = dictionary[i];
+                    mouse_dist = math.sqrt(np.linalg.norm(mouse_x-point_x) + np.linalg.norm(mouse_y-point_y));
+                    yield point_key, mouse_dist
+
+            def find_closest(calculated_distances):
+                distance_keys = []; distance_values = [];
+                for i, j in calculated_distances:
+                    distance_keys.append(i)
+                    distance_values.append(j)
+                closest_point = distance_keys[distance_values.index(min(distance_values))];
+                del calculated_distances, distance_values, distance_keys
+                return closest_point
+
+            def new_position(vm, dictionary, mouse):
+                vm.visible = False; vm.resetClicks();
+                calculated_distances = calc_distances(vm, dictionary, mouse);
+                closest_point = find_closest(calculated_distances);
+                return closest_point
+
+            TASK_DONE = False;
+            DONE = False;
+            clickCount_var = 0;
+            next_inc = 0;
+            counter_var = 0;
+
+            masterKeyFile = lists + '/masterKey.xlsx';
+            masterKey = pd.read_excel(masterKeyFile);
+            STIM_KEY = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/files/lists/stimuli_key.txt';
+            with open(STIM_KEY, 'r') as fd:
+                sizeKey = fd.read().splitlines()
+
+            random.shuffle(sizeKey);
+
+            for j in range(len(sizeKey)):
+                fileName = sizeKey[j];
+                sizeKey[j] = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/files/size/' + fileName;
+
+            def getClicked_dict():
+                nxClicked_dict = dictObj();
+                for i in range(len(xyCoords)):
+                    nxClicked_dict.add('p'+str(i), 0);
+                return nxClicked_dict
+
+            nxClicked_dict = getClicked_dict();
+
+            def object_names(imageName):
+                try:
+                    dataDir = '/Users/james/Desktop/sizeGloss/tasks/objectNaming/subjData/';
+                    fileName = 'sizeGloss_DATA_{}_objectNaming'.format(LogFilePrefix);
+                    csvName = fileName + '.csv';
+                    nameLib = pd.read_csv(dataDir+csvName);
+                    nuissance = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/files/size/';
+                    imageName = imageName.replace(nuissance, '');
+                    nuissance = '.jpg.png-gaussian.png';
+                    imageName = imageName.replace(nuissance, '');
+                    index = findImageIndex(imageName);
+                    userLabel = nameLib['userLabel'][index];
+                except:
+                    userLabel = '???'
+                return userLabel
+
+            def next(next_inc, nxClicked_dict, im, counter_var, win):
+                NEXT_KEYS = event.getKeys('d')
+                if len(NEXT_KEYS) > 0:
+                    counter_var+=1;
+                    if counter_var == 2:
+                        next_inc += 1
+                    for i in nxClicked_dict:
+                        nxClicked_dict[i]=0;
+                return next_inc, counter_var
+
+            def sizeImage(win, key):
+                im = visual.ImageStim(win,
+                                    image=key,
+                                    size= (600, 600),
+                                    units='pix');
+                return im
+
+
+            N_TRIALS = 60;
+            index = 0;
+
+
+            while True:
+                try:
+
+                    key = sizeKey[next_inc];
+                    im = sizeImage(win, key);
+                    # print('key: ', key)
+                    objectName.text = object_names(key);
+
+                    for i in gridInfo:
+                        gridInfo[i]['image'] = im.image;
+
+                except (IndexError, ValueError):
+                    objectName.text = 'Done!';
+                    objectName.pos=(0,0);
+                    im.opacity=0;
+                    grid.opacity=0;
+                    border.opacity=0;
+                    endText.text='Done';
+                    endBlock.opacity=1;
+                    TASK_DONE = True;
+
+                im.draw();
+                grid.draw();
+                border.draw();
+
+                if next_inc < N_TRIALS:
+                    objectName.text = object_names(key);
+
+                if vm.getClicks():
+                    point_key = new_position(vm, point_dict, mouse);
+
+                    if  gridInfo[point_key]['opacity'] == 0.50:
+                        clickCount_var-=1;
+                        if clickCount_var < 0:
+                            clickCount_var = 0;
+
+                        gridInfo[point_key]['opacity'] = 0.0;
+                        index = gridInfo[point_key]['index']
+                        stim = visual.ElementArrayStim(win,
+                                                       xys=xyCoords,
+                                                       colors='yellow',
+                                                       nElements=len(xyCoords),
+                                                       elementMask=None,
+                                                       elementTex=None,
+                                                       colorSpace='rgb',
+                                                       sizes=(check_size[0],check_size[1]));
+                        stim.size = (check_size[0] * num_check,
+                                     check_size[1] * num_check)
+
+                        for i in range(len(gridInfo)):
+                            point_key = 'p' + str(i);
+                            index = gridInfo[point_key]['index']
+                            opacity = gridInfo[point_key]['opacity']
+                            stim.opacities[index] = opacity;
+
+                        del point_key;
+                        vm.resetClicks();
+
+                    elif  gridInfo[point_key]['opacity'] == 0:
+
+                        clickCount_var+=1;
+                        gridInfo[point_key]['opacity'] = 0.50;
+                        index = gridInfo[point_key]['index']
+                        stim = visual.ElementArrayStim(win,
+                                                       xys=xyCoords,
+                                                       colors='yellow',
+                                                       nElements=len(xyCoords),
+                                                       elementMask=None,
+                                                       elementTex=None,
+                                                       colorSpace='rgb',
+                                                       sizes=(check_size[0],check_size[1]));
+                        stim.size = (check_size[0] * num_check,
+                                     check_size[1] * num_check)
+
+                        for i in range(len(gridInfo)):
+                            point_key = 'p' + str(i);
+                            index = gridInfo[point_key]['index']
+                            opacity = gridInfo[point_key]['opacity']
+                            stim.opacities[index] = opacity;
+
+                        del point_key;
+                        vm.resetClicks();
+
+                stim.draw();
+                grid.draw();
+                border.draw()
+                vm.draw();
+
+                block.draw();
+                endBlock.draw();
+                objectName.draw();
+                clickCount_block.draw();
+                clickCount_text.draw();
+                message_block.draw();
+                message.draw()
+                clickCount_text.text = str(clickCount_var);
+                win.flip();
+                quit();
+                next_inc, counter_var = next(next_inc, nxClicked_dict, im, counter_var, win);
+                if counter_var == 0:
+
+                    clickCount_block.pos = (0, -415)
+                    clickCount_text.pos = (0, -415)
+
+                    message_block.pos = (2000, 2000);
+                    message_block.opacity = 0;
+
+                    message.pos = (2000, 2000);
+                    message.opacity = 0;
+
+                if counter_var == 1:
+
+                    clickCount_block.pos = (2000, 2000);
+                    clickCount_text.pos = (2000, 2000);
+
+                    message_block.pos = (0, -415)
+                    message_block.opacity = 1;
+
+                    message.pos = (0, -400);
+                    message.opacity = 1;
+
+                if counter_var == 2:
+                    for i in gridInfo:
+                        gridInfo[i]['clickCount'] = clickCount_var;
+
+                    clickCount_var = 0;
+                    counter_var = 0;
+
+                    clickCount_block.pos = (0, -415)
+                    clickCount_text.pos = (0, -415)
+
+                    message_block.pos = (2000, 2000);
+                    message_block.opacity = 0;
+
+                    message.pos = (2000, 2000);
+                    message.opacity = 0;
+
+
+                    image = im.image;
+                    nuissance = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/files/size/';
+                    image = image.replace(nuissance, '')
+                    nuissance = '.jpg.png-gaussian.png';
+                    image = image.replace(nuissance, '')
+
+                    fileName = 'sizeGloss_DATA_SUBJ{}_IMAGE-{}_shineMapping'.format(LogFilePrefix, image);
+                    dataDir = '/Users/james/Desktop/sizeGloss/tasks/shineMapping/subjData/';
+
+                    savedFrame = dataDir + fileName + '.png';
+                    win.getMovieFrame(buffer='front');
+                    win.saveMovieFrames(savedFrame);
+
+                    DONE = True;
+
+                if DONE == True:
+                    saveGrid(gridInfo, image);
+
+                    del stim
+
+                    stim = visual.ElementArrayStim(win,
+                                                   xys=xyCoords,
+                                                   colors='yellow',
+                                                   nElements=len(xyCoords),
+                                                   elementMask=None,
+                                                   elementTex=None,
+                                                   colorSpace='rgb',
+                                                   sizes=(check_size[0],check_size[1]));
+                    stim.size = (check_size[0] * num_check,
+                                 check_size[1] * num_check)
+
+                    gridInfo = {};
+                    for i in range(len(xyCoords)):
+                        stim.opacities[i] = 0.0;
+                        key = 'p' + str(i);
+                        element = {key: {
+                                    'image': None,
+                                    'index': i,
+                                    'xyCoords': None,
+                                    'stim.xys': None,
+                                    'opacity': 0.0,
+                                    'clickCount':None}}
+                        gridInfo.update(element);
+
+
+                    for i in range(len(gridInfo)):
+                        point_key = 'p' + str(i);
+                        index = gridInfo[point_key]['index']
+                        opacity = 0;
+                        stim.opacities[index] = opacity;
+
+                    DONE = False;
+
+                if TASK_DONE == True:
+                    event.waitKeys()
+                    win.close(); core.quit()
+
+                RESET_KEYS = event.getKeys('f')
+                if len(RESET_KEYS) > 0:
+                    stim = visual.ElementArrayStim(win,
+                                                   xys=xyCoords,
+                                                   colors='yellow',
+                                                   nElements=len(xyCoords),
+                                                   elementMask=None,
+                                                   elementTex=None,
+                                                   colorSpace='rgb',
+                                                   sizes=(check_size[0],check_size[1]));
+                    stim.size = (check_size[0] * num_check,
+                                 check_size[1] * num_check)
+                    gridInfo = {};
+                    for i in range(len(xyCoords)):
+                        stim.opacities[i] = 0.0;
+                        key = 'p' + str(i);
+                        element = {key: {
+
+                                            'index': i,
+                                            'xyCoords': xyCoords[i],
+                                            'stim.xys': stim.xys[i],
+                                            'opacity': stim.opacities[i]}}
+
+                        gridInfo.update(element);
+
+                    message.opacity = 0;
+                    clickCount_var = 0;
+                    counter_var = 0;
+                    win.flip()
+            core.quit(); win.close();
+        except:
+            core.quit()
 
 except:
     core.quit()
