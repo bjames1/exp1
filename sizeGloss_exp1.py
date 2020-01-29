@@ -23,7 +23,6 @@ import glob
 # my_monitor.setWidth(40.8)
 # my_monitor.setDistance(60)
 # my_monitor.saveMon();
-
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 logFileDir = './data/'
@@ -45,8 +44,7 @@ def getStimList():
         im=Image.open(filename)
         globImagesList.append(filename)
     return globImagesList
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
+
 def getTaskObjects(*args):
     try:
         arr = args[0];
@@ -62,9 +60,9 @@ def getTaskObjects(*args):
         print('TASK OBJECTS:')
         for i in taskObjectList:
             print(i)
-# #------------------------------------------------------------------------------#
-# #------------------------------------------------------------------------------#
-# try:
+
+try:
+#
 #     #########################
 #     ## TASK: subjectInfo   ##
 #     #########################
@@ -120,6 +118,7 @@ def getTaskObjects(*args):
 #                 print('...Beginning Session')
 #         except:
 #             core.quit()
+#
 #     #########################
 #     ## TASK: objectNaming  ##
 #     #########################
@@ -376,6 +375,7 @@ def getTaskObjects(*args):
 #                     core.quit()
 #         except:
 #             core.quit()
+#
 #     #########################
 #     ## TASK: sizeRanking   ##
 #     #########################
@@ -2183,627 +2183,631 @@ def getTaskObjects(*args):
     #########################
     ## TASK: glossMatching ##
     #########################
-    # if task_var == 'glossMatching':
-    #     try:
-# try:
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-logFileDir = './data/'
-studyIDPrefix = 'sizeGloss_exp1_';
-subjectIDPrefix = '999';
-logFilePrefix = '_DATA_glossMatching.csv';
-logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
-
-i = 0;
-next_inc = 0;
-text = None;
-rated = True;
-IMAGE_SIZE = (440, 440);
-IMAGE_SIZE_SCALAR = 1.7;
-r1_Yconst = -400;
-r1_text_position = (-300, r1_Yconst);
-r2_text_position = (-200, r1_Yconst);
-r3_text_position = (-100, r1_Yconst);
-r4_text_position = (0, r1_Yconst);
-r5_text_position = (100, r1_Yconst);
-r6_text_position = (200, r1_Yconst);
-r7_text_position = (300, r1_Yconst);
-
-sizeKey = getStimList()
-
-dataDict = {};
-for index in range(len(sizeKey)):
-    image = sizeKey[index];
-
-    element = {index: {
-                'image': image,
-                'glossRating':None}
-                };
-
-    dataDict.update(element);
-
-def findImageIndex(imageName):
-    try:
-        for index in range(len(dataDict)):
-            image = dataDict[index]['image']
-            if imageName == image:
-                return(index)
-    except:
-        index = 'NULL'
-        return
-
-dim_value_width, dim_value_height = (1280, 1024);
-
-def getTaskObjects(*args):
-    try:
-        arr = args[0];
-        for arr in args:
-            globTaskList = [];
-            path = './stimuli/' + arr;
-            for filename in glob.glob(path + '/*.png'):
-                globTaskList.append(filename)
-
-        return globTaskList
-    except:
-        taskObjectList = ['size', 'layer', 'gloss', 'background']
-        print('TASK OBJECTS:')
-        for i in taskObjectList:
-            print(i)
-
-sizeKey = getTaskObjects('size')
-glossKey = getTaskObjects('gloss')
-layerKey = getTaskObjects('layer')
-
-win = visual.Window(
-            size=(1280, 1024),
-            color='grey',
-            fullscr=True,
-            units='pix',
-            mon='testMonitor');
-
-userLabel = 'object name';
-
-objectName = visual.TextStim( win,
-                        userLabel,
-                        height = 30);
-objectName.pos = (0, 415);
-
-vm_constant = 1;
-vm = visual.CustomMouse(win,
-    leftLimit=(-1 * dim_value_width*.50)*vm_constant,
-    topLimit=(dim_value_height*.50)*vm_constant,
-    rightLimit=(dim_value_width*.50)*vm_constant,
-    bottomLimit=(-1 * dim_value_height*.50)*vm_constant,
-    showLimitBox=False, clickOnUp=False)
-
-vm.setVisible=False;
-
-mouse = event.Mouse();
-
-endBlock = visual.Rect(win=win,
-    width=2000,
-    height=2000,
-    lineColor='grey',
-    lineWidth=3.0,
-    fillColor='grey',
-    units='pix');
-endBlock.setOpacity(0);
-
-endText = visual.TextStim(win,
-                        text='',
-                        height = 30);
-endText.pos = (0, 0);
-endText.setOpacity(0);
-
-def sizeImage(win, key):
-        im = visual.ImageStim(win,
-                            image=key,
-                            size = IMAGE_SIZE,
-                            pos= (-250, 50),
-                            units='pix');
-        return im
-
-match = visual.Circle(win,
-              radius=25,
-              edges=26,
-              units='pix',
-              lineColor='gray',
-              fillColor='gray');
-
-match_position = (250, 50);
-match.pos = match_position;
-
-g1 = visual.ImageStim(win, image=glossKey[0], units='pix');
-g2 = visual.ImageStim(win, image=glossKey[1], units='pix');
-g3 = visual.ImageStim(win, image=glossKey[2], units='pix');
-g4 = visual.ImageStim(win, image=glossKey[3], units='pix');
-g5 = visual.ImageStim(win, image=glossKey[4], units='pix');
-g6 = visual.ImageStim(win, image=glossKey[5], units='pix');
-g7 = visual.ImageStim(win, image=glossKey[6], units='pix');
-
-g1.size = g1.size * 1;
-g2.size = g2.size * 1;
-g3.size = g3.size * 1;
-g4.size = g4.size * 1;
-g5.size = g5.size * 1;
-g6.size = g6.size * 1;
-g7.size = g7.size * 1;
-
-g1.pos = match_position;
-g2.pos = match_position;
-g3.pos = match_position;
-g4.pos = match_position;
-g5.pos = match_position;
-g6.pos = match_position;
-g7.pos = match_position;
-
-g1.opacity = 0;
-g2.opacity = 0;
-g3.opacity = 0;
-g4.opacity = 0;
-g5.opacity = 0;
-g6.opacity = 0;
-g7.opacity = 0;
-
-choice = visual.Circle(win,
-                radius=25,
-                edges=52,
-                units='pix',
-                lineColor='white',
-                fillColor=None)
-
-choice.opacity = 1;
-
-rtext_size = (50, 50);
-rtext_color = 'white';
-rtext_units = 'pix';
-
-r1_text = visual.TextStim(win, '1', color=rtext_color, units=rtext_units);
-r2_text = visual.TextStim(win, '2', color=rtext_color, units=rtext_units);
-r3_text = visual.TextStim(win, '3', color=rtext_color, units=rtext_units);
-r4_text = visual.TextStim(win, '4', color=rtext_color, units=rtext_units);
-r5_text = visual.TextStim(win, '5', color=rtext_color, units=rtext_units);
-r6_text = visual.TextStim(win, '6', color=rtext_color, units=rtext_units);
-r7_text = visual.TextStim(win, '7', color=rtext_color, units=rtext_units);
-
-r1_text.size = rtext_size
-r2_text.size = rtext_size
-r3_text.size = rtext_size
-r4_text.size = rtext_size
-r5_text.size = rtext_size
-r6_text.size = rtext_size
-r7_text.size = rtext_size
-
-r1_text.pos = r1_text_position;
-r2_text.pos = r2_text_position;
-r3_text.pos = r3_text_position;
-r4_text.pos = r4_text_position;
-r5_text.pos = r5_text_position;
-r6_text.pos = r6_text_position;
-r7_text.pos = r7_text_position;
-
-r1_text.autoDraw = True;
-r2_text.autoDraw = True;
-r3_text.autoDraw = True;
-r4_text.autoDraw = True;
-r5_text.autoDraw = True;
-r6_text.autoDraw = True;
-r7_text.autoDraw = True;
-
-scrnText = visual.TextStim(win,
-                text='',
-                color=rtext_color,
-                units=rtext_units);
-scrnText.pos = (0, -275);
-
-match.autoDraw = True;
-g1.autoDraw = True;
-g2.autoDraw = True;
-g3.autoDraw = True;
-g4.autoDraw = True;
-g5.autoDraw = True;
-g6.autoDraw = True;
-g7.autoDraw = True;
-choice.autoDraw = True;
-scrnText.autoDraw = True;
-endBlock.autoDraw = True;
-endText.autoDraw = True;
-
-
-def quit():
-    QUIT_KEYS = event.getKeys('0')
-    if len(QUIT_KEYS) > 0:
-        core.quit();
-        win.close()
-def next(next_inc):
-    NEXT_KEYS = event.getKeys('d')
-    if len(NEXT_KEYS) > 0:
-        next_inc += 1
-    return next_inc
-
-def nextEval(next_inc, i, im, message, rated, win, dataDict, logFilePrefix, ans):
-    next_inc=next(next_inc)
-    if next_inc == 1:
-        message = 'Are you sure?';
-    if next_inc == 2:
-        i += 1
-        next_inc = 0;
-        message = '';
-        rated = True;
-
-        imageName = im.image;
-
-        index = findImageIndex(imageName);
-
-        nuissance = './stimulis/size/';
-        imageName = imageName.replace(nuissance, '');
-        nuissance = '.jpg.png-gaussian.png';
-        imageName = imageName.replace(nuissance, '');
-        fileName = 'sizeGloss_DATA_IMAGE_{}_glossMatching'.format(imageName);
-
-        savedFrame = logFileDir + fileName + '.png';
-        win.getMovieFrame(buffer='front');
-        win.saveMovieFrames(savedFrame);
-        dataDict[index]['glossRating']=ans;
-        del im
-
-    return next_inc, i, message, rated
-
-
-def ratingEval(rgb_layer2, key, i):
-    if rgb_layer2 == (255, 0, 0):
-        ans = 'gloss level 1'
-        g1.opacity = 1;
-        g2.opacity = 0;
-        g3.opacity = 0;
-        g4.opacity = 0;
-        g5.opacity = 0;
-        g6.opacity = 0;
-        g7.opacity = 0;
-        r1_text_position = (300, r1_Yconst);
-        return r1_text_position
-
-    if rgb_layer2 == (0, 128, 0):
-        ans = 'gloss level 2'
-        g1.opacity = 0;
-        g2.opacity = 1;
-        g3.opacity = 0;
-        g4.opacity = 0;
-        g5.opacity = 0;
-        g6.opacity = 0;
-        g7.opacity = 0;
-        r2_text_position = (200, r1_Yconst);
-        return r2_text_position
-
-    if rgb_layer2 == (0, 255, 255):
-        ans = 'gloss level 3'
-        g1.opacity = 0;
-        g2.opacity = 0;
-        g3.opacity = 1;
-        g4.opacity = 0;
-        g5.opacity = 0;
-        g6.opacity = 0;
-        g7.opacity = 0;
-        r3_text_position = (100, r1_Yconst);
-        return r3_text_position
-
-    if rgb_layer2 == (0, 165, 255):
-        ans = 'gloss level 4'
-        g1.opacity = 0;
-        g2.opacity = 0;
-        g3.opacity = 0;
-        g4.opacity = 1;
-        g5.opacity = 0;
-        g6.opacity = 0;
-        g7.opacity = 0;
-        r4_text_position = (0, r1_Yconst);
-        return r4_text_position
-
-    if rgb_layer2 == (0, 0, 255):
-        ans = 'gloss level 5'
-        g1.opacity = 0;
-        g2.opacity = 0;
-        g3.opacity = 0;
-        g4.opacity = 0;
-        g5.opacity = 1;
-        g6.opacity = 0;
-        g7.opacity = 0;
-        r5_text_position = (-100, r1_Yconst)
-        return r5_text_position
-
-    if rgb_layer2 == (128, 0, 128):
-        ans = 'gloss level 6'
-        g1.opacity = 0;
-        g2.opacity = 0;
-        g3.opacity = 0;
-        g4.opacity = 0;
-        g5.opacity = 0;
-        g6.opacity = 1;
-        g7.opacity = 0;
-        r6_text_position = (-200, r1_Yconst)
-        return r6_text_position
-
-    if rgb_layer2 == (203, 192, 255):
-        ans = 'gloss level 7'
-        g1.opacity = 0;
-        g2.opacity = 0;
-        g3.opacity = 0;
-        g4.opacity = 0;
-        g5.opacity = 0;
-        g6.opacity = 0;
-        g7.opacity = 1;
-        r7_text_position = (-300, r1_Yconst)
-        return r7_text_position
-
-def restartTrial(rated, choice):
-    if rated == True:
-        g1.opacity = 0;
-        g2.opacity = 0;
-        g3.opacity = 0;
-        g4.opacity = 0;
-        g5.opacity = 0;
-        g6.opacity = 0;
-        g7.opacity = 1;
-        choice.pos = r1_text_position
-        rated = False;
-    return rated
-
-def saveData(dataDict):
-    logFilePrefix = '_DATA_glossMatching.csv';
-    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
-
-
-    for index in range(len(dataDict)):
-
-        if dataDict[index]['glossRating'] == 'gloss level 1':
-            ans = 7;
-            dataDict[index]['glossRating'] = ans;
-
-        elif dataDict[index]['glossRating'] == 'gloss level 2':
-            ans = 6;
-            dataDict[index]['glossRating'] = ans;
-
-        elif dataDict[index]['glossRating'] == 'gloss level 3':
-            ans = 5;
-            dataDict[index]['glossRating'] = ans;
-
-        elif dataDict[index]['glossRating'] == 'gloss level 4':
-            ans = 4;
-            dataDict[index]['glossRating'] = ans;
-
-        elif dataDict[index]['glossRating'] == 'gloss level 5':
-            ans = 3;
-            dataDict[index]['glossRating'] = ans;
-
-        elif dataDict[index]['glossRating'] == 'gloss level 6':
-            ans = 2;
-            dataDict[index]['glossRating'] = ans;
-
-        elif dataDict[index]['glossRating'] == 'gloss level 7':
-            ans = 1;
-            dataDict[index]['glossRating'] = ans;
-
-    df = pd.DataFrame.from_dict(dataDict, orient='index');
-    df.to_csv(logFileName, index = True, header=True)
-
-TASK_DONE = False;
-dim_value_width, dim_value_height = (1280, 1024);
-sizeKey = getTaskObjects('size')
-
-random.shuffle(sizeKey);
-
-glossKey = getTaskObjects('gloss')
-layerKey = getTaskObjects('layer')
-
-def vmX_to_imX(dim_value_width):
-    import numpy as np
-    mousePx = np.arange((-1*dim_value_width*.50), (dim_value_width*.50), 1);
-    imagePx = np.arange(0, dim_value_width, 1);
-    class my_dictionary(dict):
-        def __init__(self):
-            self = dict()
-        def add(self, key, value):
-            self[key] = value
-    dict_obj = my_dictionary()
-    for i in range(len(mousePx)):
-        dict_obj.add(mousePx[i], imagePx[i])
-    return dict_obj
-
-def vmY_to_imY(dim_value_height):
-    import numpy as np
-    mousePx = np.arange((-1*dim_value_height*.50)+1, (dim_value_height*.50)+1, 1);
-    imagePx = np.arange(0, dim_value_height+1, 1);
-    class my_dictionary(dict):
-        def __init__(self):
-            self = dict()
-        def add(self, key, value):
-            self[key] = value
-    dict_obj = my_dictionary()
-    for i in range(len(mousePx)):
-        dict_obj.add(mousePx[i], imagePx[i])
-    return dict_obj
-
-dX = vmX_to_imX(dim_value_width);
-dY = vmY_to_imY(dim_value_height);
-
-layer1=layerKey[0];
-layer2=layerKey[1];
-
-def pixelColor_layer1(x, y):
-    import cv2
-    import numpy as np
-    im = cv2.imread(layer1);
-    im = cv2.flip(im,-1)
-    rgb = cv2.resize(im, (dim_value_width,dim_value_height))
-    color = rgb[y, x]
-    r=color[0];
-    g=color[1];
-    b=color[2];
-    return r, g, b
-
-def pixelColor_layer2(x, y):
-    import cv2
-    import numpy as np
-    im = cv2.imread(layer2);
-    im = cv2.flip(im,-1);
-    rgb = cv2.resize(im,((dim_value_width,dim_value_height)))
-    color = rgb[y, x]
-    r=color[0];
-    g=color[1];
-    b=color[2];
-    return r, g, b
-
-data_dict = {};
-
-def object_names(imageName):
-
-    try:
-
-        logFilePrefix = '_DATA_objectNaming.csv';
-        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
-        nameLib = pd.read_csv(logFileName);
-        nameLib = nameLib.T
-        nameLib = nameLib.drop(nameLib.index[0])
-        cols = ['image', 'userLabel']
-        nameLib.columns = cols;
-
-        # nuissance = './stimuli/size/';
-        # imageName = imageName.replace(nuissance, '');
-        # nuissance = '.jpg.png-gaussian.png';
-        # imageName = imageName.replace(nuissance, '');
-
-        index = findImageIndex(imageName);
-        userLabel = nameLib['userLabel'][index];
-
-    except:
-        userLabel = '???'
-    return userLabel
-
-N_TRIALS = 60;
-
-while True:
-
-    vm.visible = False;
-
-    if i < N_TRIALS:
-
-        key = sizeKey[i];
-        objectName.text = object_names(key);
-
-        im = sizeImage(win, key);
-
-    if i >= N_TRIALS:
-
-        objectName.text = 'Done!';
-        objectName.pos=(0,0);
-
-        im.opacity=0;
-        endBlock.opacity=1;
-        endText.opacity=1;
-        endText.text = 'Done!';
-        TASK_DONE = True;
-
-        fileNames = data_dict.keys();
-        glossLevels = data_dict.values();
-
-    im.draw();
-    vm.draw();
-    rated = restartTrial(rated, choice);
-
-    if vm.getClicks():
-
-        mXY = vm.getPos();
-        vm.resetClicks();
-        mX=int(mXY[0]);
-        mY=int(mXY[1]);
-        x = dX[mX];
-        y = dY[mY];
-
-        rgb_layer1 = pixelColor_layer1(x, y);
-
-        if rgb_layer1 == (255, 0, 0):
-            rgb_layer2 = pixelColor_layer2(x, y);
-            key = im.image;
-            choice_position = ratingEval(rgb_layer2, key, i);
-            choice.pos = choice_position;
-
-    objectName.draw();
-    win.flip();
-    quit();
-
-    image = im.image;
-    # nuissance = './stimuli/size/';
-    # image = image.replace(nuissance, '');
-    # nuissance = '.jpg.png-gaussian.png';
-    # image = image.replace(nuissance, '');
-
-    if g1.opacity == 1:
-        ans = 'gloss level 1';
-        data_dict[key] = ans;
-
-    if g2.opacity == 1:
-        ans = 'gloss level 2';
-        data_dict[key] = ans;
-
-    if g3.opacity == 1:
-        ans = 'gloss level 3';
-        data_dict[key] = ans;
-
-    if g4.opacity == 1:
-        ans = 'gloss level 4';
-        data_dict[key] = ans;
-
-    if g5.opacity == 1:
-        ans = 'gloss level 5';
-        data_dict[key] = ans;
-
-    if g6.opacity == 1:
-        ans = 'gloss level 6';
-        data_dict[key] = ans;
-
-    if g7.opacity == 1:
-        ans = 'gloss level 7';
-        data_dict[key] = ans;
-
-    next_inc, i, text, rated = nextEval(next_inc, i, im, text, rated, win, dataDict, logFilePrefix, ans);
-
-    RESET_KEYS = event.getKeys('f')
-    if len(RESET_KEYS) > 0:
-
-        next_inc = 0;
-        text = '';
-        rated = False;
-
-        index = findImageIndex(imageName);
-
-        image = im.image;
-        nuissance = './stimuli/size/';
-        image = image.replace(nuissance, '');
-        nuissance = '.jpg.png-gaussian.png';
-        image = image.replace(nuissance, '');
-
-        fileName = 'sizeGloss_DATA_IMAGE_{}_glossMatching'.format(imageName);
-        savedFrame = logFileDir + fileName + '.png';
-        win.getMovieFrame(buffer='front');
-        win.saveMovieFrames(savedFrame);
-
-        win.flip()
-
-    scrnText.text = text;
-
-    if TASK_DONE == True:
-        saveData(dataDict);
-        event.waitKeys();
-        win.close();
-        core.quit();
-
-saveData(dataDict);
-
-win.close();
-core.quit();
-
-# except:
-#     core.quit()
+    if task_var == 'glossMatching':
+        try:
+
+            logFileDir = './data/'
+            studyIDPrefix = 'sizeGloss_exp1_';
+            subjectIDPrefix = '999';
+            logFilePrefix = '_DATA_glossMatching.csv';
+            logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+
+            i = 0;
+            next_inc = 0;
+            text = None;
+            rated = True;
+            IMAGE_SIZE = (440, 440);
+            IMAGE_SIZE_SCALAR = 1.7;
+            r1_Yconst = -400;
+            r1_text_position = (-300, r1_Yconst);
+            r2_text_position = (-200, r1_Yconst);
+            r3_text_position = (-100, r1_Yconst);
+            r4_text_position = (0, r1_Yconst);
+            r5_text_position = (100, r1_Yconst);
+            r6_text_position = (200, r1_Yconst);
+            r7_text_position = (300, r1_Yconst);
+
+            sizeKey = getStimList()
+
+            dataDict = {};
+            for index in range(len(sizeKey)):
+                image = sizeKey[index];
+
+                element = {index: {
+                            'image': image,
+                            'glossRating':None}
+                            };
+
+                dataDict.update(element);
+
+            def findImageIndex(imageName):
+                try:
+                    for index in range(len(dataDict)):
+                        image = dataDict[index]['image']
+                        if imageName == image:
+                            return(index)
+                except:
+                    index = 'NULL'
+                    return
+
+            dim_value_width, dim_value_height = (1280, 1024);
+
+            def getTaskObjects(*args):
+                try:
+                    arr = args[0];
+                    for arr in args:
+                        globTaskList = [];
+                        path = './stimuli/' + arr;
+                        for filename in glob.glob(path + '/*.png'):
+                            globTaskList.append(filename)
+
+                    return globTaskList
+                except:
+                    taskObjectList = ['size', 'layer', 'gloss', 'background']
+                    print('TASK OBJECTS:')
+                    for i in taskObjectList:
+                        print(i)
+
+            sizeKey = getTaskObjects('size')
+            glossKey = getTaskObjects('gloss')
+            layerKey = getTaskObjects('layer')
+
+            win = visual.Window(
+                        size=(1280, 1024),
+                        color='grey',
+                        fullscr=True,
+                        units='pix',
+                        mon='testMonitor');
+
+            userLabel = 'object name';
+
+            objectName = visual.TextStim( win,
+                                    userLabel,
+                                    height = 30);
+            objectName.pos = (0, 415);
+
+            vm_constant = 1;
+            vm = visual.CustomMouse(win,
+                leftLimit=(-1 * dim_value_width*.50)*vm_constant,
+                topLimit=(dim_value_height*.50)*vm_constant,
+                rightLimit=(dim_value_width*.50)*vm_constant,
+                bottomLimit=(-1 * dim_value_height*.50)*vm_constant,
+                showLimitBox=False, clickOnUp=False)
+
+            vm.setVisible=False;
+
+            mouse = event.Mouse();
+
+            endBlock = visual.Rect(win=win,
+                width=2000,
+                height=2000,
+                lineColor='grey',
+                lineWidth=3.0,
+                fillColor='grey',
+                units='pix');
+            endBlock.setOpacity(0);
+
+            endText = visual.TextStim(win,
+                                    text='',
+                                    height = 30);
+            endText.pos = (0, 0);
+            endText.setOpacity(0);
+
+            def sizeImage(win, key):
+                    im = visual.ImageStim(win,
+                                        image=key,
+                                        size = IMAGE_SIZE,
+                                        pos= (-250, 50),
+                                        units='pix');
+                    return im
+
+            match = visual.Circle(win,
+                          radius=25,
+                          edges=26,
+                          units='pix',
+                          lineColor='gray',
+                          fillColor='gray');
+
+            match_position = (250, 50);
+            match.pos = match_position;
+
+            g1 = visual.ImageStim(win, image=glossKey[0], units='pix');
+            g2 = visual.ImageStim(win, image=glossKey[1], units='pix');
+            g3 = visual.ImageStim(win, image=glossKey[2], units='pix');
+            g4 = visual.ImageStim(win, image=glossKey[3], units='pix');
+            g5 = visual.ImageStim(win, image=glossKey[4], units='pix');
+            g6 = visual.ImageStim(win, image=glossKey[5], units='pix');
+            g7 = visual.ImageStim(win, image=glossKey[6], units='pix');
+
+            g1.size = g1.size * 1;
+            g2.size = g2.size * 1;
+            g3.size = g3.size * 1;
+            g4.size = g4.size * 1;
+            g5.size = g5.size * 1;
+            g6.size = g6.size * 1;
+            g7.size = g7.size * 1;
+
+            g1.pos = match_position;
+            g2.pos = match_position;
+            g3.pos = match_position;
+            g4.pos = match_position;
+            g5.pos = match_position;
+            g6.pos = match_position;
+            g7.pos = match_position;
+
+            g1.opacity = 0;
+            g2.opacity = 0;
+            g3.opacity = 0;
+            g4.opacity = 0;
+            g5.opacity = 0;
+            g6.opacity = 0;
+            g7.opacity = 0;
+
+            choice = visual.Circle(win,
+                            radius=25,
+                            edges=52,
+                            units='pix',
+                            lineColor='white',
+                            fillColor=None)
+
+            choice.opacity = 1;
+
+            rtext_size = (50, 50);
+            rtext_color = 'white';
+            rtext_units = 'pix';
+
+            r1_text = visual.TextStim(win, '1', color=rtext_color, units=rtext_units);
+            r2_text = visual.TextStim(win, '2', color=rtext_color, units=rtext_units);
+            r3_text = visual.TextStim(win, '3', color=rtext_color, units=rtext_units);
+            r4_text = visual.TextStim(win, '4', color=rtext_color, units=rtext_units);
+            r5_text = visual.TextStim(win, '5', color=rtext_color, units=rtext_units);
+            r6_text = visual.TextStim(win, '6', color=rtext_color, units=rtext_units);
+            r7_text = visual.TextStim(win, '7', color=rtext_color, units=rtext_units);
+
+            r1_text.size = rtext_size
+            r2_text.size = rtext_size
+            r3_text.size = rtext_size
+            r4_text.size = rtext_size
+            r5_text.size = rtext_size
+            r6_text.size = rtext_size
+            r7_text.size = rtext_size
+
+            r1_text.pos = r1_text_position;
+            r2_text.pos = r2_text_position;
+            r3_text.pos = r3_text_position;
+            r4_text.pos = r4_text_position;
+            r5_text.pos = r5_text_position;
+            r6_text.pos = r6_text_position;
+            r7_text.pos = r7_text_position;
+
+            r1_text.autoDraw = True;
+            r2_text.autoDraw = True;
+            r3_text.autoDraw = True;
+            r4_text.autoDraw = True;
+            r5_text.autoDraw = True;
+            r6_text.autoDraw = True;
+            r7_text.autoDraw = True;
+
+            scrnText = visual.TextStim(win,
+                            text='',
+                            color=rtext_color,
+                            units=rtext_units);
+            scrnText.pos = (0, -275);
+
+            match.autoDraw = True;
+            g1.autoDraw = True;
+            g2.autoDraw = True;
+            g3.autoDraw = True;
+            g4.autoDraw = True;
+            g5.autoDraw = True;
+            g6.autoDraw = True;
+            g7.autoDraw = True;
+            choice.autoDraw = True;
+            scrnText.autoDraw = True;
+            endBlock.autoDraw = True;
+            endText.autoDraw = True;
+
+
+            def quit():
+                QUIT_KEYS = event.getKeys('0')
+                if len(QUIT_KEYS) > 0:
+                    core.quit();
+                    win.close()
+            def next(next_inc):
+                NEXT_KEYS = event.getKeys('d')
+                if len(NEXT_KEYS) > 0:
+                    next_inc += 1
+                return next_inc
+
+            def nextEval(next_inc, i, im, message, rated, win, dataDict, logFilePrefix, ans):
+                next_inc=next(next_inc)
+                if next_inc == 1:
+                    message = 'Are you sure?';
+                if next_inc == 2:
+                    i += 1
+                    next_inc = 0;
+                    message = '';
+                    rated = True;
+
+                    imageName = im.image;
+
+                    index = findImageIndex(imageName);
+
+                    nuissance = './stimuli/size/';
+                    imageName = imageName.replace(nuissance, '');
+                    nuissance = '.jpg.png-gaussian.png';
+                    imageName = imageName.replace(nuissance, '');
+
+                    logFilePrefix = 'IMAGE_{}_glossMatching.png'.format(imageName);
+                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+
+                    savedFrame = logFileName;
+                    win.getMovieFrame(buffer='front');
+                    win.saveMovieFrames(savedFrame);
+
+
+                    dataDict[index]['glossRating']=ans;
+                    del im
+
+
+
+                return next_inc, i, message, rated
+
+
+            def ratingEval(rgb_layer2, key, i):
+                if rgb_layer2 == (255, 0, 0):
+                    ans = 'gloss level 1'
+                    g1.opacity = 1;
+                    g2.opacity = 0;
+                    g3.opacity = 0;
+                    g4.opacity = 0;
+                    g5.opacity = 0;
+                    g6.opacity = 0;
+                    g7.opacity = 0;
+                    r1_text_position = (300, r1_Yconst);
+                    return r1_text_position
+
+                if rgb_layer2 == (0, 128, 0):
+                    ans = 'gloss level 2'
+                    g1.opacity = 0;
+                    g2.opacity = 1;
+                    g3.opacity = 0;
+                    g4.opacity = 0;
+                    g5.opacity = 0;
+                    g6.opacity = 0;
+                    g7.opacity = 0;
+                    r2_text_position = (200, r1_Yconst);
+                    return r2_text_position
+
+                if rgb_layer2 == (0, 255, 255):
+                    ans = 'gloss level 3'
+                    g1.opacity = 0;
+                    g2.opacity = 0;
+                    g3.opacity = 1;
+                    g4.opacity = 0;
+                    g5.opacity = 0;
+                    g6.opacity = 0;
+                    g7.opacity = 0;
+                    r3_text_position = (100, r1_Yconst);
+                    return r3_text_position
+
+                if rgb_layer2 == (0, 165, 255):
+                    ans = 'gloss level 4'
+                    g1.opacity = 0;
+                    g2.opacity = 0;
+                    g3.opacity = 0;
+                    g4.opacity = 1;
+                    g5.opacity = 0;
+                    g6.opacity = 0;
+                    g7.opacity = 0;
+                    r4_text_position = (0, r1_Yconst);
+                    return r4_text_position
+
+                if rgb_layer2 == (0, 0, 255):
+                    ans = 'gloss level 5'
+                    g1.opacity = 0;
+                    g2.opacity = 0;
+                    g3.opacity = 0;
+                    g4.opacity = 0;
+                    g5.opacity = 1;
+                    g6.opacity = 0;
+                    g7.opacity = 0;
+                    r5_text_position = (-100, r1_Yconst)
+                    return r5_text_position
+
+                if rgb_layer2 == (128, 0, 128):
+                    ans = 'gloss level 6'
+                    g1.opacity = 0;
+                    g2.opacity = 0;
+                    g3.opacity = 0;
+                    g4.opacity = 0;
+                    g5.opacity = 0;
+                    g6.opacity = 1;
+                    g7.opacity = 0;
+                    r6_text_position = (-200, r1_Yconst)
+                    return r6_text_position
+
+                if rgb_layer2 == (203, 192, 255):
+                    ans = 'gloss level 7'
+                    g1.opacity = 0;
+                    g2.opacity = 0;
+                    g3.opacity = 0;
+                    g4.opacity = 0;
+                    g5.opacity = 0;
+                    g6.opacity = 0;
+                    g7.opacity = 1;
+                    r7_text_position = (-300, r1_Yconst)
+                    return r7_text_position
+
+            def restartTrial(rated, choice):
+                if rated == True:
+                    g1.opacity = 0;
+                    g2.opacity = 0;
+                    g3.opacity = 0;
+                    g4.opacity = 0;
+                    g5.opacity = 0;
+                    g6.opacity = 0;
+                    g7.opacity = 1;
+                    choice.pos = r1_text_position
+                    rated = False;
+                return rated
+
+            def saveData(dataDict):
+                logFilePrefix = '_DATA_glossMatching.csv';
+                logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+
+
+                for index in range(len(dataDict)):
+
+                    if dataDict[index]['glossRating'] == 'gloss level 1':
+                        ans = 7;
+                        dataDict[index]['glossRating'] = ans;
+
+                    elif dataDict[index]['glossRating'] == 'gloss level 2':
+                        ans = 6;
+                        dataDict[index]['glossRating'] = ans;
+
+                    elif dataDict[index]['glossRating'] == 'gloss level 3':
+                        ans = 5;
+                        dataDict[index]['glossRating'] = ans;
+
+                    elif dataDict[index]['glossRating'] == 'gloss level 4':
+                        ans = 4;
+                        dataDict[index]['glossRating'] = ans;
+
+                    elif dataDict[index]['glossRating'] == 'gloss level 5':
+                        ans = 3;
+                        dataDict[index]['glossRating'] = ans;
+
+                    elif dataDict[index]['glossRating'] == 'gloss level 6':
+                        ans = 2;
+                        dataDict[index]['glossRating'] = ans;
+
+                    elif dataDict[index]['glossRating'] == 'gloss level 7':
+                        ans = 1;
+                        dataDict[index]['glossRating'] = ans;
+
+                df = pd.DataFrame.from_dict(dataDict, orient='index');
+                df.to_csv(logFileName, index = True, header=True)
+
+            TASK_DONE = False;
+            dim_value_width, dim_value_height = (1280, 1024);
+            sizeKey = getTaskObjects('size')
+
+            random.shuffle(sizeKey);
+
+            glossKey = getTaskObjects('gloss')
+            layerKey = getTaskObjects('layer')
+
+            def vmX_to_imX(dim_value_width):
+                import numpy as np
+                mousePx = np.arange((-1*dim_value_width*.50), (dim_value_width*.50), 1);
+                imagePx = np.arange(0, dim_value_width, 1);
+                class my_dictionary(dict):
+                    def __init__(self):
+                        self = dict()
+                    def add(self, key, value):
+                        self[key] = value
+                dict_obj = my_dictionary()
+                for i in range(len(mousePx)):
+                    dict_obj.add(mousePx[i], imagePx[i])
+                return dict_obj
+
+            def vmY_to_imY(dim_value_height):
+                import numpy as np
+                mousePx = np.arange((-1*dim_value_height*.50)+1, (dim_value_height*.50)+1, 1);
+                imagePx = np.arange(0, dim_value_height+1, 1);
+                class my_dictionary(dict):
+                    def __init__(self):
+                        self = dict()
+                    def add(self, key, value):
+                        self[key] = value
+                dict_obj = my_dictionary()
+                for i in range(len(mousePx)):
+                    dict_obj.add(mousePx[i], imagePx[i])
+                return dict_obj
+
+            dX = vmX_to_imX(dim_value_width);
+            dY = vmY_to_imY(dim_value_height);
+
+            layer1=layerKey[0];
+            layer2=layerKey[1];
+
+            def pixelColor_layer1(x, y):
+                import cv2
+                import numpy as np
+                im = cv2.imread(layer1);
+                im = cv2.flip(im,-1)
+                rgb = cv2.resize(im, (dim_value_width,dim_value_height))
+                color = rgb[y, x]
+                r=color[0];
+                g=color[1];
+                b=color[2];
+                return r, g, b
+
+            def pixelColor_layer2(x, y):
+                import cv2
+                import numpy as np
+                im = cv2.imread(layer2);
+                im = cv2.flip(im,-1);
+                rgb = cv2.resize(im,((dim_value_width,dim_value_height)))
+                color = rgb[y, x]
+                r=color[0];
+                g=color[1];
+                b=color[2];
+                return r, g, b
+
+            data_dict = {};
+
+            def object_names(imageName):
+
+                try:
+
+                    logFilePrefix = '_DATA_objectNaming.csv';
+                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    nameLib = pd.read_csv(logFileName);
+                    nameLib = nameLib.T
+                    nameLib = nameLib.drop(nameLib.index[0])
+                    cols = ['image', 'userLabel']
+                    nameLib.columns = cols;
+
+                    # nuissance = './stimuli/size/';
+                    # imageName = imageName.replace(nuissance, '');
+                    # nuissance = '.jpg.png-gaussian.png';
+                    # imageName = imageName.replace(nuissance, '');
+
+                    index = findImageIndex(imageName);
+                    userLabel = nameLib['userLabel'][index];
+
+                except:
+                    userLabel = '???'
+                return userLabel
+
+            N_TRIALS = 60;
+
+            while True:
+
+                vm.visible = False;
+
+                if i < N_TRIALS:
+
+                    key = sizeKey[i];
+                    objectName.text = object_names(key);
+
+                    im = sizeImage(win, key);
+
+                if i >= N_TRIALS:
+
+                    objectName.text = 'Done!';
+                    objectName.pos=(0,0);
+
+                    im.opacity=0;
+                    endBlock.opacity=1;
+                    endText.opacity=1;
+                    endText.text = 'Done!';
+                    TASK_DONE = True;
+
+                    fileNames = data_dict.keys();
+                    glossLevels = data_dict.values();
+
+                im.draw();
+                vm.draw();
+                rated = restartTrial(rated, choice);
+
+                if vm.getClicks():
+
+                    mXY = vm.getPos();
+                    vm.resetClicks();
+                    mX=int(mXY[0]);
+                    mY=int(mXY[1]);
+                    x = dX[mX];
+                    y = dY[mY];
+
+                    rgb_layer1 = pixelColor_layer1(x, y);
+
+                    if rgb_layer1 == (255, 0, 0):
+                        rgb_layer2 = pixelColor_layer2(x, y);
+                        key = im.image;
+                        choice_position = ratingEval(rgb_layer2, key, i);
+                        choice.pos = choice_position;
+
+                objectName.draw();
+                win.flip();
+                quit();
+
+                image = im.image;
+                # nuissance = './stimuli/size/';
+                # image = image.replace(nuissance, '');
+                # nuissance = '.jpg.png-gaussian.png';
+                # image = image.replace(nuissance, '');
+
+                if g1.opacity == 1:
+                    ans = 'gloss level 1';
+                    data_dict[key] = ans;
+
+                if g2.opacity == 1:
+                    ans = 'gloss level 2';
+                    data_dict[key] = ans;
+
+                if g3.opacity == 1:
+                    ans = 'gloss level 3';
+                    data_dict[key] = ans;
+
+                if g4.opacity == 1:
+                    ans = 'gloss level 4';
+                    data_dict[key] = ans;
+
+                if g5.opacity == 1:
+                    ans = 'gloss level 5';
+                    data_dict[key] = ans;
+
+                if g6.opacity == 1:
+                    ans = 'gloss level 6';
+                    data_dict[key] = ans;
+
+                if g7.opacity == 1:
+                    ans = 'gloss level 7';
+                    data_dict[key] = ans;
+
+                next_inc, i, text, rated = nextEval(next_inc, i, im, text, rated, win, dataDict, logFilePrefix, ans);
+
+                RESET_KEYS = event.getKeys('f')
+                if len(RESET_KEYS) > 0:
+
+                    next_inc = 0;
+                    text = '';
+                    rated = False;
+
+                    index = findImageIndex(imageName);
+
+                    image = im.image;
+                    nuissance = './stimuli/size/';
+                    image = image.replace(nuissance, '');
+                    nuissance = '.jpg.png-gaussian.png';
+                    image = image.replace(nuissance, '');
+
+                    fileName = 'sizeGloss_DATA_IMAGE_{}_glossMatching'.format(imageName);
+                    savedFrame = logFileDir + fileName + '.png';
+                    win.getMovieFrame(buffer='front');
+                    win.saveMovieFrames(savedFrame);
+
+                    win.flip()
+
+                scrnText.text = text;
+
+                if TASK_DONE == True:
+                    saveData(dataDict);
+                    event.waitKeys();
+                    win.close();
+                    core.quit();
+
+            saveData(dataDict);
+
+            win.close();
+            core.quit();
+
+        except:
+            core.quit()
 
     # #########################
     # ## TASK: shineMapping  ##
@@ -3426,12 +3430,9 @@ core.quit();
     #                 counter_var = 0;
     #                 win.flip()
     #         core.quit(); win.close();
-        #
-        # except:
-        #     core.quit()
 
-# except:
-#     core.quit()
+except:
+    core.quit()
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 ################################################################################
