@@ -38,17 +38,6 @@ unzipper = zipfile.ZipFile(BG_FILE, 'r');
 unzipper.extractall(BG_PATH); unzipper.close();
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-def getStimList():
-    from PIL import Image
-    import glob
-    globImagesList = [];
-    path = './stimuli/size';
-    for filename in glob.glob(path + '/*.png'):
-        im=Image.open(filename)
-        globImagesList.append(filename)
-    return globImagesList
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
 def getTaskObjects(*args):
     try:
         arr = args[0];
@@ -65,56 +54,35 @@ def getTaskObjects(*args):
             print(i)
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-win = visual.Window(
-            size=(1920, 1080),
-            color='grey',
-            fullscr=True,
-            units='pix',
-            mon='testMonitor');
-
-
-VM_SHOW_LIMIT_BOX = False;
-VM_CLICK_ON_UP = False;
-VM_WIDTH = 1920;
-VM_HEIGHT = 1080;
-
-vm = visual.CustomMouse(
-        win,
-        leftLimit=-(VM_WIDTH/2.0),
-        topLimit=(VM_HEIGHT/2.0),
-        rightLimit=(VM_WIDTH/2.0),
-        bottomLimit=-(VM_HEIGHT/2.0),
-        showLimitBox=VM_SHOW_LIMIT_BOX,
-        clickOnUp=VM_CLICK_ON_UP);
-
-
-# vm_constant = 1;
-# vm = visual.CustomMouse(win,
-#     leftLimit=(-1 * dim_value_width*.50)*vm_constant,
-#     topLimit=(dim_value_height*.50)*vm_constant,
-#     rightLimit=(dim_value_width*.50)*vm_constant,
-#     bottomLimit=(-1 * dim_value_height*.50)*vm_constant,
-#     showLimitBox=False, clickOnUp=False)
-
-vm.setVisible=False;
-
-
-mouse = event.Mouse();
-
-
-# vm = visual.CustomMouse(
-# win,
-# leftLimit=-(VM_WIDTH/2.0),
-# topLimit=(VM_HEIGHT/2.0),
-# rightLimit=(VM_WIDTH/2.0),
-# bottomLimit=-(VM_HEIGHT/2.0),
-# showLimitBox=VM_SHOW_LIMIT_BOX,
-# clickOnUp=VM_CLICK_ON_UP);
+N_TRIALS = 2;
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+def setupTask():
+    VM_SHOW_LIMIT_BOX = False;
+    VM_CLICK_ON_UP = False;
+    VM_WIDTH = 1920;
+    VM_HEIGHT = 1080;
+    win = visual.Window(
+                size=(1920, 1080),
+                color='grey',
+                fullscr=True,
+                units='pix',
+                mon='testMonitor');
+    vm = visual.CustomMouse(
+            win,
+            leftLimit=-(VM_WIDTH/2.0),
+            topLimit=(VM_HEIGHT/2.0),
+            rightLimit=(VM_WIDTH/2.0),
+            bottomLimit=-(VM_HEIGHT/2.0),
+            showLimitBox=VM_SHOW_LIMIT_BOX,
+            clickOnUp=VM_CLICK_ON_UP);
+    vm.setVisible=False;
+    mouse = event.Mouse();
+    return win, mouse, vm
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 taskOrder = [
 
-'subjectInfo',
 'objectNaming',
 'sizeRanking',
 'glossMatching',
@@ -123,76 +91,74 @@ taskOrder = [
 ];
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+#########################
+## TASK: subjectInfo   ##
+#########################
+# if task == 'subjectInfo':
+try:
+
+    # demographics
+    cols = [
+        'First Name',
+        'Last Name',
+        'Middle Initial',
+        'age',
+        'gender'
+    ];
+
+    # setup data entry fields
+    info = {
+        cols[0]:'',
+        cols[1]:'',
+        cols[2]:'',
+        cols[3]:'',
+        cols[4]:['male', 'female'],
+    };
+
+    # create Dlg from Dict
+    fileDlg = gui.DlgFromDict(
+        dictionary=info,
+        title='Size-Gloss Study',
+        order=[
+        cols[0],
+        cols[1],
+        cols[2],
+        cols[3],
+        cols[4]
+    ]);
+
+    #---Build Logging File
+    if gui.OK:
+        Dlg_Responses=fileDlg.data;
+
+        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+
+        for i in range(len(Dlg_Responses)):
+            resp = Dlg_Responses[i];
+            if resp == '':
+                print('...Missing Participant Data')
+                print('...Session Cancelled')
+                core.quit()
+
+        df = pd.DataFrame([info], columns = cols)
+        df.to_csv(logFileName, index = False, header=True)
+        print('...All Participant Data Logged!')
+        print('...Beginning Session')
+
+except:
+    core.quit()
+
+win, mouse, vm = setupTask()
+
 for task in taskOrder:
 
     try:
 
         #########################
-        ## TASK: subjectInfo   ##
-        #########################
-        if task == 'subjectInfo':
-            try:
-
-                # demographics
-                cols = [
-                    'First Name',
-                    'Last Name',
-                    'Middle Initial',
-                    'age',
-                    'gender'
-                ];
-
-                # setup data entry fields
-                info = {
-                    cols[0]:'',
-                    cols[1]:'',
-                    cols[2]:'',
-                    cols[3]:'',
-                    cols[4]:['male', 'female'],
-                };
-
-                # create Dlg from Dict
-                fileDlg = gui.DlgFromDict(
-                    dictionary=info,
-                    title='Size-Gloss Study',
-                    order=[
-                    cols[0],
-                    cols[1],
-                    cols[2],
-                    cols[3],
-                    cols[4]
-                ]);
-
-                #---Build Logging File
-                if gui.OK:
-                    Dlg_Responses=fileDlg.data;
-
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
-
-                    for i in range(len(Dlg_Responses)):
-                        resp = Dlg_Responses[i];
-                        if resp == '':
-                            print('...Missing Participant Data')
-                            print('...Session Cancelled')
-                            core.quit()
-
-                    df = pd.DataFrame([info], columns = cols)
-                    df.to_csv(logFileName, index = False, header=True)
-                    print('...All Participant Data Logged!')
-                    print('...Beginning Session')
-            except:
-                core.quit()
-
-        #########################
         ## TASK: objectNaming  ##
         #########################
         if task == 'objectNaming':
-            # win = visual.Window(
-            #             size=(1920, 1080),
-            #             color='grey',
-            #             fullscr=True,
-            #             units='pix',
-            #             mon='testMonitor');
+
             txt = '';
             i = 0;
             next_inc = 0;
@@ -201,7 +167,7 @@ for task in taskOrder:
             refresh = False;
             TASK_DONE = False;
             userLabel = 'object name';
-            sizeKey = getStimList();
+            sizeKey = getTaskObjects('size')
             dataDict = {};
             for index in range(len(sizeKey)):
                 image = sizeKey[index];
@@ -344,7 +310,7 @@ for task in taskOrder:
                 return txt
 
             try:
-                N_TRIALS = 2;
+                # N_TRIALS = 2;
                 kb = keyboard.Keyboard();
                 timer = core.Clock();
                 while continuing:
@@ -439,9 +405,28 @@ for task in taskOrder:
                         event.waitKeys();
                         kb.stop()
 
+                        del \
+                        objectName,
+                        dataDict,
+                        endText,
+                        endBlock,
+                        pygKey,
+                        ptbKey,
+                        im,
+                        msg,
+                        msg2,
+                        pygKey,
+                        message,
+                        txt,
+                        next_inc,
+
+                        # win,
+                        # mouse,
+                        # vm
+
                         break
 
-                    continue
+                    # continue
 
             except:
                 win.close()
@@ -450,7 +435,10 @@ for task in taskOrder:
         #########################
         ## TASK: sizeRanking   ##
         #########################
+        # win, mouse, vm = setupTask()
         if task == 'sizeRanking':
+
+
             try:
                 print('...STARTING SIZE RANKING TASK')
                 IMAGE_RESIZE_VAR = .45
@@ -485,13 +473,9 @@ for task in taskOrder:
                 IMAGE_UNITS= 'pix';
                 VM_SHOW_LIMIT_BOX = False;
                 VM_CLICK_ON_UP = True;
-                # VM_WIDTH = 1680;
-                # VM_HEIGHT = 1050;
 
                 VM_WIDTH = 1920;
                 VM_HEIGHT = 1080;
-
-
 
                 GRID_WIDTH = 1280;
                 GRID_HEIGHT = 1024;
@@ -602,7 +586,6 @@ for task in taskOrder:
                 pointer = visual.ImageStim(
                         win,
                         image= './stimuli/dealers/image.png',
-                        # image= './files/images/image.png',
                         size=(IMAGE_WIDTH, IMAGE_HEIGHT),
                         units = IMAGE_UNITS,
                         pos = (2000, 2000));
@@ -610,7 +593,6 @@ for task in taskOrder:
                 image = visual.ImageStim(
                         win,
                         image= './stimuli/dealers/image.png',
-                        # image= './files/images/image.png',
                         size=(IMAGE_WIDTH, IMAGE_HEIGHT),
                         units = IMAGE_UNITS,
                         pos = (2000, 2000));
@@ -676,15 +658,6 @@ for task in taskOrder:
                     alignVert='center',
                     alignHoriz='center',
                     units=TXT_PROMPT_UNITS)
-
-                # vm = visual.CustomMouse(
-                #         win,
-                #         leftLimit=-(VM_WIDTH/2.0),
-                #         topLimit=(VM_HEIGHT/2.0),
-                #         rightLimit=(VM_WIDTH/2.0),
-                #         bottomLimit=-(VM_HEIGHT/2.0),
-                #         showLimitBox=VM_SHOW_LIMIT_BOX,
-                #         clickOnUp=VM_CLICK_ON_UP);
 
                 dealerBlock1 = visual.Rect(win,
                         width=DBLOCK01_WIDTH,
@@ -1730,14 +1703,12 @@ for task in taskOrder:
                     tmp4 = tmp4 + 'png';
                     image3 = visual.ImageStim(
                             win,
-                            # image=nuissance + tmp4,
                             image=tmp4,
                             size=(IMAGE_WIDTH, IMAGE_HEIGHT),
                             units = IMAGE_UNITS,
                             pos = switch_dict2[2][1]);
                     image4 = visual.ImageStim(
                             win,
-                            # image=nuissance + tmp3,
                             image=tmp3,
                             size=(IMAGE_WIDTH, IMAGE_HEIGHT),
                             units = IMAGE_UNITS,
@@ -1765,7 +1736,7 @@ for task in taskOrder:
                                         'image': set_image_value,
                                         'set_image_key': set_image_key}}
                     set_images.update(element)
-                images_key = getStimList();
+                images_key = getTaskObjects('size')
                 random.shuffle(images_key);
                 image_dict={};
                 for i in range(60):
@@ -1773,7 +1744,7 @@ for task in taskOrder:
                         image_dict.update({'im'+str(i):images_key[i]})
                     except IndexError:
                         image_dict.update({'im'+str(i):None})
-                    continue
+                    # continue
                 popped_images = {};
 
                 def mouse_pos(vm):
@@ -1863,7 +1834,6 @@ for task in taskOrder:
                 switch_dict = dictObj();
                 switch_dict2 = dictObj();
                 data_dict = {};
-                # mouse = event.Mouse();
                 N_TRIALS = 2;
 
                 while True:
@@ -2252,7 +2222,7 @@ for task in taskOrder:
 
                             break
 
-                        continue
+                        # continue
             except:
                 core.quit()
 
@@ -2282,7 +2252,7 @@ for task in taskOrder:
                 r6_text_position = (200, r1_Yconst);
                 r7_text_position = (300, r1_Yconst);
 
-                sizeKey = getStimList()
+                sizeKey = getTaskObjects('size')
 
                 dataDict = {};
                 for index in range(len(sizeKey)):
@@ -2860,22 +2830,21 @@ for task in taskOrder:
                         del g1, g2, g3, g4, g5, g6, g7
                         del r1_text, r2_text, r3_text, r4_text, r5_text, r6_text, r7_text
 
+                        # del win, mouse, vm
                         break
 
-                    continue
+                    # continue
 
             except:
-                break
-                # core.quit()
+                core.quit()
 
         #########################
         ## TASK: shineMapping  ##
         #########################
         if task == 'shineMapping':
-
-
+            vm.visible = False;
             try:
-                # win.update()
+
                 print('...STARTING SHINE MAPPING TASK')
 
                 def saveData(dataDict):
@@ -2926,14 +2895,6 @@ for task in taskOrder:
 
                     df = pd.DataFrame.from_dict(gridInfo, orient='index')
                     df.to_csv(logFileName, index = False, header=True)
-
-
-                # win = visual.Window(
-                #     size = (1280, 1024),
-                #     color='grey',
-                #     fullscr = True,
-                #     monitor = 'testMonitor',
-                #     units='pix')
 
                 userLabel = 'object name';
                 objectName = visual.TextStim( win,
@@ -3067,8 +3028,6 @@ for task in taskOrder:
                                         units='pix');
                 endText.pos = (2000, 2000);
                 endText.setOpacity(0);
-
-                # win.mouseVisible = True;
 
                 def save_background(imageName):
 
@@ -3206,18 +3165,31 @@ for task in taskOrder:
                     return im
 
 
-                N_TRIALS = 2;
+                # N_TRIALS = 2;
                 index = 0;
 
                 while True:
                     try:
 
-                        key = sizeKey[next_inc];
-                        im = sizeImage(win, key);
-                        objectName.text = object_names(key);
+                        if next_inc <= N_TRIALS:
+                            objectName.text = object_names(key);
 
-                        for i in gridInfo:
-                            gridInfo[i]['image'] = im.image;
+                            key = sizeKey[next_inc];
+                            im = sizeImage(win, key);
+                            objectName.text = object_names(key);
+
+                            for i in gridInfo:
+                                gridInfo[i]['image'] = im.image;
+
+                        if next_inc >= N_TRIALS:
+                            objectName.text = 'Done!';
+                            objectName.pos=(0,0);
+                            im.opacity=0;
+                            grid.opacity=0;
+                            border.opacity=0;
+                            endText.text='Done';
+                            endBlock.opacity=1;
+                            TASK_DONE = True;
 
                     except (IndexError, ValueError):
                         objectName.text = 'Done!';
@@ -3396,12 +3368,6 @@ for task in taskOrder:
 
                         DONE = False;
 
-                    if TASK_DONE == True:
-                        print('...SHINE MAPPING TASK COMPLETE')
-                        event.waitKeys()
-                        break
-                        # win.close(); core.quit()
-
                     RESET_KEYS = event.getKeys('f')
                     if len(RESET_KEYS) > 0:
                         stim = visual.ElementArrayStim(win,
@@ -3432,13 +3398,22 @@ for task in taskOrder:
                         counter_var = 0;
                         win.flip()
 
+
+                    if TASK_DONE == True:
+                        print('...SHINE MAPPING TASK COMPLETE')
+                        event.waitKeys()
+                        break
+
             except:
-                core.quit()
+                break
 
     except:
-        core.quit()
+        break
 
 print('...EXPERIMENT COMPLETE')
+
+win.close()
+core.quit()
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 ################################################################################
