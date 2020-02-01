@@ -4,7 +4,7 @@
 """
                       File    :   "sizeGloss.py"
                       Author  :   James Michael Brown
-                      Updated :   January 26, 2020
+                      Updated :   January 31, 2020
 """
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -17,19 +17,11 @@ from PIL import Image
 import glob
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-# from psychopy import monitors
-# my_monitor = monitors.Monitor(name='testMonitor')
-# my_monitor.setSizePix((1920, 1080))
-# my_monitor.setWidth(40.8)
-# my_monitor.setDistance(60)
-# my_monitor.saveMon();
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-logFileDir = './data/'
+from pathlib import Path
+subjectID = '777';
 studyIDPrefix = 'sizeGloss_exp1_';
-subjectIDPrefix = '777';
-logFilePrefix = '_DATA_subjectInfo.csv';
-logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+logFileDir = './data/{}/'.format(subjectID)
+Path(logFileDir).mkdir(parents=True, exist_ok=True)
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 BG_PATH = './stimuli/background';
@@ -39,6 +31,8 @@ unzipper.extractall(BG_PATH); unzipper.close();
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 def getTaskObjects(*args):
+    from PIL import Image
+    import glob
     try:
         arr = args[0];
         for arr in args:
@@ -46,15 +40,18 @@ def getTaskObjects(*args):
             path = './stimuli/' + arr;
             for filename in glob.glob(path + '/*.png'):
                 globTaskList.append(filename)
+
+        globTaskList.sort()
         return globTaskList
     except:
         taskObjectList = ['size', 'layer', 'gloss', 'grid','background']
         print('TASK OBJECTS:')
         for i in taskObjectList:
             print(i)
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-N_TRIALS = 2;
+N_TRIALS = 5;
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 def setupTask():
@@ -82,83 +79,123 @@ def setupTask():
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 taskOrder = [
-
-'objectNaming',
+'subjectInfo',
+# 'objectNaming',
 'sizeRanking',
-'glossMatching',
-'shineMapping',
-
+# 'distanceRanking',
+# 'glossMatching',
+# 'shineMapping',
 ];
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-#########################
-## TASK: subjectInfo   ##
-#########################
-# if task == 'subjectInfo':
-try:
-
-    # demographics
-    cols = [
-        'First Name',
-        'Last Name',
-        'Middle Initial',
-        'age',
-        'gender'
-    ];
-
-    # setup data entry fields
-    info = {
-        cols[0]:'',
-        cols[1]:'',
-        cols[2]:'',
-        cols[3]:'',
-        cols[4]:['male', 'female'],
-    };
-
-    # create Dlg from Dict
-    fileDlg = gui.DlgFromDict(
-        dictionary=info,
-        title='Size-Gloss Study',
-        order=[
-        cols[0],
-        cols[1],
-        cols[2],
-        cols[3],
-        cols[4]
-    ]);
-
-    #---Build Logging File
-    if gui.OK:
-        Dlg_Responses=fileDlg.data;
-
-        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
-
-        for i in range(len(Dlg_Responses)):
-            resp = Dlg_Responses[i];
-            if resp == '':
-                print('...Missing Participant Data')
-                print('...Session Cancelled')
-                core.quit()
-
-        df = pd.DataFrame([info], columns = cols)
-        df.to_csv(logFileName, index = False, header=True)
-        print('...All Participant Data Logged!')
-        print('...Beginning Session')
-
-except:
-    core.quit()
-
-win, mouse, vm = setupTask()
-
+# win, mouse, vm = setupTask()
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+taskChecklist = [
+'subjectInfo',
+# 'objectNaming',
+'sizeRanking',
+# 'distanceRanking',
+# 'glossMatching',
+# 'shineMapping',
+];
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+taskInfo = {};
+for index in range(len(taskChecklist)):
+    task = taskChecklist[index];
+    element = {task: {
+                'taskCompleted':False}
+                };
+    taskInfo.update(element);
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+taskInfo['subjectInfo']=True;
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 for task in taskOrder:
-
+    # win, mouse, vm = setupTask()
     try:
+        #########################
+        ## TASK: subjectInfo   ##
+        #########################
+        if task == 'subjectInfo' and taskInfo['subjectInfo'] == True:
+            win, mouse, vm = setupTask()
+
+        if task == 'subjectInfo' and taskInfo['subjectInfo'] != True:
+            # demographics
+            cols = [
+                'First Name',
+                'Last Name',
+                'Middle Initial',
+                'age',
+                'gender'
+            ];
+
+            # setup data entry fields
+            info = {
+                cols[0]:'',
+                cols[1]:'',
+                cols[2]:'',
+                cols[3]:'',
+                cols[4]:['male', 'female', 'transgender', 'non-binary', 'prefer not to say']
+
+            };
+
+            # create Dlg from Dict
+            fileDlg = gui.DlgFromDict(
+                dictionary=info,
+                title='Size-Gloss Study',
+                order=[
+                cols[0],
+                cols[1],
+                cols[2],
+                cols[3],
+                cols[4]
+            ]);
+
+            #---Build Logging File
+            if gui.OK:
+                Dlg_Responses=fileDlg.data;
+
+                logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+
+                for i in range(len(Dlg_Responses)):
+                    resp = Dlg_Responses[i];
+                    if resp == '':
+                        print('...Missing Participant Data')
+                        print('...Session Cancelled')
+                        core.quit()
+
+                studyIDPrefix = 'sizeGloss_exp1_';
+                logFileDir = './data/{}/'.format(subjectID)
+
+                logFilePrefix = '_DATA_subjectInfo.csv';
+                logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                df = pd.DataFrame([info], columns = cols)
+                df.to_csv(logFileName, index = False, header=True)
+
+                taskInfo['subjectInfo']=True;
+
+                subjectID = '777';
+                studyIDPrefix = 'sizeGloss_exp1_';
+                logFileDir = './data/{}/'.format(subjectID)
+
+                logFilePrefix = '_DATA_taskInfo.csv';
+                logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+                df = pd.DataFrame(taskInfo).T
+                df.to_csv(logFileName, index = False, header=True)
+
+                print('...All Participant Data Logged!')
+                print('...Beginning Session')
+
+                win, mouse, vm = setupTask()
+
 
         #########################
         ## TASK: objectNaming  ##
         #########################
         if task == 'objectNaming':
-
             txt = '';
             i = 0;
             next_inc = 0;
@@ -224,7 +261,7 @@ for task in taskOrder:
                 return im
             def saveData(dataDict):
                 logFilePrefix = '_DATA_objectNaming.csv';
-                logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                 df = pd.DataFrame.from_dict(dataDict)
                 df.to_csv(logFileName, index = True, header=True)
             def findImageIndex(imageName):
@@ -242,6 +279,54 @@ for task in taskOrder:
             def task_keys(txt, pygKey):
 
                 txt += ('{}'.format(pygKey));
+
+                if pygKey == '0':
+                    txt=edit(txt, '0');
+
+                if pygKey == '1':
+                    txt=edit(txt, '1');
+
+                if pygKey == '2':
+                    txt=edit(txt, '2');
+
+                if pygKey == '3':
+                    txt=edit(txt, '3');
+
+                if pygKey == '4':
+                    txt=edit(txt, '4');
+
+                if pygKey == '5':
+                    txt=edit(txt, '5');
+
+                if pygKey == '6':
+                    txt=edit(txt, '6');
+
+                if pygKey == '7':
+                    txt=edit(txt, '7');
+
+                if pygKey == '8':
+                    txt=edit(txt, '8');
+
+                if pygKey == '9':
+                    txt=edit(txt, '9');
+
+                if pygKey == '=':
+                    txt=edit(txt, '=');
+
+                if pygKey == 'delete':
+                    txt=edit(txt, 'delete');
+
+                if pygKey == ';':
+                    txt=edit(txt, ';');
+
+                if pygKey == ',':
+                    txt=edit(txt, ',');
+
+                if pygKey == '.':
+                    txt=edit(txt, '.');
+
+                if pygKey == 'control':
+                    txt=edit(txt, 'control');
 
                 if pygKey == '/':
                     txt=edit(txt, '/');
@@ -270,6 +355,64 @@ for task in taskOrder:
                 if pygKey == '_':
                     txt=edit(txt, '_');
 
+                if pygKey == 'apostrophe':
+                    txt=edit(txt, 'apostrophe')
+
+                if pygKey == 'minus':
+                    txt=edit(txt, 'minus')
+
+                if pygKey == 'quoteleft':
+                    txt=edit(txt, 'quoteleft')
+
+                if pygKey == 'bracketleft':
+                    txt=edit(txt, 'bracketleft');
+
+                if pygKey == 'bracketright':
+                    txt=edit(txt, 'bracketright');
+
+                if pygKey == 'lctrl':
+                    txt=edit(txt, 'lctrl');
+
+                if pygKey == 'capslock':
+                    txt=edit(txt, 'capslock');
+
+
+                if pygKey == 'up':
+                    txt=edit(txt, 'up');
+
+                if pygKey == 'down':
+                    txt=edit(txt, 'down');
+
+                if pygKey == 'right':
+                    txt=edit(txt, 'right');
+
+                if pygKey == 'left':
+                    txt=edit(txt, 'left');
+
+                if pygKey == 'comma':
+                    txt=edit(txt, 'comma');
+
+                if pygKey == 'slash':
+                    txt=edit(txt, 'slash');
+
+                if pygKey == '[':
+                    txt=edit(txt, '[');
+
+                if pygKey == ']':
+                    txt=edit(txt, ']');
+
+                if pygKey == 'equal':
+                    txt=edit(txt, 'equal');
+
+                if pygKey == 'equals':
+                    txt=edit(txt, 'equals');
+
+                if pygKey == 'period':
+                    txt=edit(txt, 'period');
+
+                if pygKey == 'backslash':
+                    txt=edit(txt, 'backslash');
+
                 if pygKey == '.':
                     txt=edit(txt, '.');
 
@@ -287,6 +430,21 @@ for task in taskOrder:
 
                 if pygKey == 'command':
                     txt=edit(txt, 'command');
+
+                if pygKey == 'lcommand':
+                    txt=edit(txt, 'lcommand');
+
+                if pygKey == 'rcommand':
+                    txt=edit(txt, 'rcommand')
+
+                if pygKey == 'loption':
+                    txt=edit(txt, 'loption');
+
+                if pygKey == 'roption':
+                    txt=edit(txt, 'roption')
+
+                if pygKey == '`':
+                    txt=edit(txt, '`')
 
                 if pygKey == 'rshift' or 'lshift' or 'shift':
                     txt=edit(txt, 'rshift');
@@ -310,7 +468,7 @@ for task in taskOrder:
                 return txt
 
             try:
-                # N_TRIALS = 2;
+
                 kb = keyboard.Keyboard();
                 timer = core.Clock();
                 while continuing:
@@ -381,7 +539,7 @@ for task in taskOrder:
                         saveData(dataDict);
                         imageName = imageName.replace('./stimuli/size/', '');
                         imageName = imageName.replace('.jpg.png-gaussian.png', '');
-                        fileName = logFileDir + studyIDPrefix + subjectIDPrefix + '_IMAGE_{}_objectNaming'.format(imageName);
+                        fileName = logFileDir + studyIDPrefix + subjectID + '_IMAGE_{}_objectNaming'.format(imageName);
                         savedFrame =  fileName + '.png';
                         win.getMovieFrame(buffer='front');
                         win.saveMovieFrames(savedFrame);
@@ -419,14 +577,14 @@ for task in taskOrder:
                         message,
                         txt,
                         next_inc,
-
-                        # win,
-                        # mouse,
-                        # vm
+                        taskInfo['objectNaming']=True;
+                        # WRITE
+                        logFilePrefix = '_DATA_taskInfo.csv';
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+                        df = pd.DataFrame(taskInfo).T
+                        df.to_csv(logFileName, index = False, header=True)
 
                         break
-
-                    # continue
 
             except:
                 win.close()
@@ -503,7 +661,6 @@ for task in taskOrder:
                 TBLOCK_POSITION = (0, 385);
                 RESIZED_IMAGE_POSITION = (0, 0);
                 RESIZED_IMAGE_SIZE = (300, 300);
-                N_TRIALS = 60;
 
                 def makeCoords(n_rows, n_cols, win_wpx, win_hpx, grid_vert_shift):
                     GridRows = np.linspace(-win_hpx/2, +win_hpx/2, n_rows)
@@ -1232,7 +1389,7 @@ for task in taskOrder:
 
                         # imageName = image_value.replace('./stimuli/size/', '');
                         # imageName = imageName.replace('.jpg.png-gaussian.png', '');
-                        # fileName = logFileDir + studyIDPrefix + subjectIDPrefix + '_IMAGE_{}_sizeRanking'.format(imageName);
+                        # fileName = logFileDir + studyIDPrefix + subjectID + '_IMAGE_{}_sizeRanking'.format(imageName);
                         # savedFrame =  fileName + '.png';
                         # win.getMovieFrame(buffer='front');
                         # win.saveMovieFrames(savedFrame);
@@ -1248,7 +1405,7 @@ for task in taskOrder:
 
                 def getUserLabels():
                     logFilePrefix = '_DATA_objectNaming.csv';
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                     nameLib = pd.read_csv(logFileName);
                     nameLib = nameLib.T
 
@@ -1267,7 +1424,13 @@ for task in taskOrder:
 
                     sort01_KEYS = event.getKeys('t')
                     if len(sort01_KEYS) > 0:
-                        sort01_vert.setOpacity(1);
+                        # sort01_vert.setOpacity(1);
+                        print('image3.pos: ', image3.pos)
+                        print('image3.image: ', image3.image)
+                        print('image4.pos: ', image4.pos)
+                        print('image4.image: ', image4.image)
+                        print('image.pos: ', image.pos)
+                        print('image.image: ', image.image)
 
                     sort02_KEYS = event.getKeys('y')
                     if len(sort02_KEYS) > 0:
@@ -1376,8 +1539,8 @@ for task in taskOrder:
                             print('LIST_POPPED_POINTS: ', i);
                             print('LIST_POPPED_(XY): ', popped_dictionary[i]);
                             itemlist.append(i, popped_dictionary[i])
-                        with open('LIST_POPPED_POINTS', 'wb') as fp:
-                            pickle.dump(itemlist, fp)
+                        # with open('LIST_POPPED_POINTS', 'wb') as fp:
+                        #     pickle.dump(itemlist, fp)
 
                     N_POPPED_IMAGES = event.getKeys('7')
                     if len(N_POPPED_IMAGES) > 0:
@@ -1430,7 +1593,10 @@ for task in taskOrder:
                 def shrink(win, vm, zoomImage, selection2, selection):
 
                     selection.setOpacity(0)
-                    selection2.setOpacity(1);
+
+                    # HERE HERE HERE
+                    selection2.setOpacity(0);
+                    # selection2.setOpacity(1);
 
                     zoomBackground.setOpacity(0);
                     zoomImage.setOpacity(0);
@@ -1472,7 +1638,7 @@ for task in taskOrder:
                             return resize_VAR, ZOOM_TEXT
 
                             logFilePrefix = '_DATA_sizeRanking.csv';
-                            logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                            logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
                             point_dictionary_backup = grid_data();
                             nuu = None;
@@ -1604,23 +1770,28 @@ for task in taskOrder:
                 def resetter_keys(switcher_VAR, vm, sCOUNTS, zCOUNTS):
                     popped_size = len(popped_dictionary);
                     SWITCHER_KEYS = event.getKeys('f')
-                    if len(SWITCHER_KEYS) > 0 and popped_size > 0 and sCOUNTS == 0 and zCOUNTS == 0:
+                    # HERE HERE HERE
+                    if len(SWITCHER_KEYS) > 0 and popped_size > 0 and sCOUNTS == 0 and zCOUNTS == 0 and switcher_VAR != True:
                         tmp_dict = dictObj2();
                         for i in switch_dict:
                             tmp_dict.add(i, switch_dict[i][0])
                         switcher_VAR = True;
                         point_key = new_position(vm, tmp_dict);
                         point_value = switch_dict[point_key][0];
-                        for i in switch_dict:
-                            print('switch_dict: ', switch_dict[i])
+
+                        imDict = set_images[point_key];
+
                         selection.setOpacity(1);
                         selection2.setOpacity(0);
                         selection.pos = point_value;
                         selection2.pos = point_value;
                         image_name = switch_dict[point_key][1];
+
                         blank1.append(point_key)
                         blank2.append(point_value)
                         blank3.append(image_name)
+                        globals()['sCOUNTS']=1;
+
                         return switcher_VAR
                     else:
                         pass
@@ -1676,11 +1847,13 @@ for task in taskOrder:
                     return undealer_VAR, image, bg
 
                 def sREDEAL_DATA(sCOUNTS, index):
-                    index += 1; image3.opacity = 0; image4.opacity = 0;
+                    index += 1;
+                    # FIXED
+                    # image3.opacity = 0; image4.opacity = 0;
                     switch_dict2 = dictObj3();
                     switch_dict2.add(index, blank1[0], blank2[0], blank3[0]);
                     blank1.pop(); blank2.pop(); blank3.pop();
-                    switcher_VAR = False; sCOUNTS += 1;
+                    switcher_VAR = False;
                     return sCOUNTS, index, switcher_VAR, switch_dict2
 
                 def sRESETTER_UPDATE(index, switch_dict2):
@@ -1692,6 +1865,7 @@ for task in taskOrder:
                     point_value = switch_dict[point_key][0];
                     image_name = switch_dict[point_key][1];
                     index += 1;
+
                     switch_dict2.add(index, point_key, point_value, image_name);
                     set_images[switch_dict2[1][0]]['(x, y)']= switch_dict2[2][1];
                     set_images[switch_dict2[1][0]]['image']= switch_dict2[2][2];
@@ -1699,30 +1873,32 @@ for task in taskOrder:
                     set_images[switch_dict2[2][0]]['image']= switch_dict2[1][2];
                     tmp3 = switch_dict2[2][2];
                     tmp4 = switch_dict2[1][2];
-                    tmp3 = tmp3 + 'png';
-                    tmp4 = tmp4 + 'png';
-                    image3 = visual.ImageStim(
+
+
+                    globals()['image3'] = visual.ImageStim(
                             win,
                             image=tmp4,
                             size=(IMAGE_WIDTH, IMAGE_HEIGHT),
                             units = IMAGE_UNITS,
                             pos = switch_dict2[2][1]);
-                    image4 = visual.ImageStim(
+
+                    globals()['image4'] = visual.ImageStim(
                             win,
                             image=tmp3,
                             size=(IMAGE_WIDTH, IMAGE_HEIGHT),
                             units = IMAGE_UNITS,
                             pos = switch_dict2[1][1]);
+
                     point_key1 = switch_dict2[1][0]
                     point_key2 = switch_dict2[2][0]
                     if point_key1 != point_key2:
                         tmp_point_key1 = switch_dict.pop(point_key1)
                         tmp_point_key2 = switch_dict.pop(point_key2)
-                        tmp1 = tmp_point_key1[1];
-                        tmp2 = tmp_point_key2[1];
                         switch_dict.add(point_key1, tmp_point_key1[0], tmp_point_key2[1])
                         switch_dict.add(point_key2, tmp_point_key2[0], tmp_point_key1[1])
-                    return image3, image4
+                    # HERE HERE HERE
+                    globals()['sCOUNTS']=0;
+                    del switch_dict2
 
                 popped_dictionary = {};
                 set_images = {};
@@ -1802,7 +1978,7 @@ for task in taskOrder:
                 def saveData(dataDict):
 
                     logFilePrefix = '_DATA_sizeRanking.csv';
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
                     cols = [
                         'sizeKey',
@@ -1816,10 +1992,10 @@ for task in taskOrder:
                     df.to_csv(logFileName, index = False, header=True)
 
                 def keyCounter(x):
-
                     if event.getKeys(["return"]):
                         x+=1
                     return x
+
                 data_dict={};
 
                 TASK_COMPLETE = False;
@@ -1834,7 +2010,6 @@ for task in taskOrder:
                 switch_dict = dictObj();
                 switch_dict2 = dictObj();
                 data_dict = {};
-                N_TRIALS = 2;
 
                 while True:
                 # try:
@@ -1984,14 +2159,17 @@ for task in taskOrder:
                             index = 0;
                             undealer_VAR, image, bg = zRESETTER_UPDATE(image_key, data_dict);
 
-                        if sCOUNTS == 0:
-                            selection.setOpacity(0); selection2.setOpacity(0);
+                        # if sCOUNTS == 0:
+                        #     # del image3, image4
+                        #     image3.opacity = 0;
+                        #     image4.opacity = 0;
+                        #     selection.setOpacity(0);
+                        #     selection2.setOpacity(0);
 
                         if sCOUNTS == 1:
                             selection.setOpacity(1);
                             selection2.setOpacity(0);
-                            image3, image4 = sRESETTER_UPDATE(index, switch_dict2);
-                            sCOUNTS = 0;
+                            sRESETTER_UPDATE(index, switch_dict2);
                             index = 0;
                             image.opacity = 0;
                             save_background();
@@ -2185,13 +2363,20 @@ for task in taskOrder:
                             zoomText.pos = (0, 100)
                             zoomText.text = 'Done!';
 
-                            fileName = logFileDir + studyIDPrefix + subjectIDPrefix + '_DISPLAYRANKED_sizeRanking';
+                            fileName = logFileDir + studyIDPrefix + subjectID + '_DISPLAYRANKED_sizeRanking';
                             savedFrame =  fileName + '.png';
                             win.getMovieFrame(buffer='front');
                             win.saveMovieFrames(savedFrame);
                             unzipper = zipfile.ZipFile(BG_FILE, 'r');
                             unzipper.extractall(BG_PATH); unzipper.close();
                             DONE = True;
+
+
+                            taskInfo['sizeRanking']=True;
+                            logFilePrefix = '_DATA_taskInfo.csv';
+                            logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+                            df = pd.DataFrame(taskInfo).T
+                            df.to_csv(logFileName, index = False, header=True)
 
                     if DONE == True:
 
@@ -2219,12 +2404,14 @@ for task in taskOrder:
                         ROUND_SIX_COUNT = keyCounter(ROUND_SIX_COUNT);
                         if ROUND_SIX_COUNT == 1:
                             print('...SIZE RANKING TASK COMPLETE')
-
                             break
 
-                        # continue
             except:
                 core.quit()
+
+
+
+
 
         #########################
         ## TASK: glossMatching ##
@@ -2235,7 +2422,7 @@ for task in taskOrder:
                 print('...STARTING GLOSS MATCHING TASK')
 
                 logFilePrefix = '_DATA_glossMatching.csv';
-                logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
                 i = 0;
                 next_inc = 0;
@@ -2275,12 +2462,11 @@ for task in taskOrder:
                         index = 'NULL'
                         return
 
-                dim_value_width, dim_value_height = (1280, 1024);
+                dim_value_width, dim_value_height = (1920, 1080);
 
                 sizeKey = getTaskObjects('size')
                 glossKey = getTaskObjects('gloss')
                 layerKey = getTaskObjects('layer')
-
 
                 userLabel = 'object name';
 
@@ -2450,23 +2636,21 @@ for task in taskOrder:
                         imageName = imageName.replace(nuissance, '');
 
                         logFilePrefix = 'IMAGE_{}_glossMatching.png'.format(imageName);
-                        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
                         savedFrame = logFileName;
                         win.getMovieFrame(buffer='front');
                         win.saveMovieFrames(savedFrame);
 
-
                         dataDict[index]['glossRating']=ans;
                         del im
-
-
 
                     return next_inc, i, message, rated
 
 
                 def ratingEval(rgb_layer2, key, i):
                     if rgb_layer2 == (255, 0, 0):
+                        # ans = 'gloss level 1'
                         ans = 'gloss level 1'
                         g1.opacity = 1;
                         g2.opacity = 0;
@@ -2555,17 +2739,18 @@ for task in taskOrder:
                         g1.opacity = 0;
                         g2.opacity = 0;
                         g3.opacity = 0;
-                        g4.opacity = 0;
+                        g4.opacity = 1;
                         g5.opacity = 0;
                         g6.opacity = 0;
-                        g7.opacity = 1;
-                        choice.pos = r1_text_position
+                        g7.opacity = 0;
+                        # choice.pos = r1_text_position
+                        choice.pos = r4_text_position
                         rated = False;
                     return rated
 
                 def saveData(dataDict):
                     logFilePrefix = '_DATA_glossMatching.csv';
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
 
                     for index in range(len(dataDict)):
@@ -2602,7 +2787,9 @@ for task in taskOrder:
                     df.to_csv(logFileName, index = True, header=True)
 
                 TASK_DONE = False;
-                dim_value_width, dim_value_height = (1280, 1024);
+                # dim_value_width, dim_value_height = (1280, 1024);
+
+                dim_value_width, dim_value_height = (1920, 1080);
                 sizeKey = getTaskObjects('size')
 
                 random.shuffle(sizeKey);
@@ -2676,7 +2863,7 @@ for task in taskOrder:
                     try:
 
                         logFilePrefix = '_DATA_objectNaming.csv';
-                        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                         nameLib = pd.read_csv(logFileName);
                         nameLib = nameLib.T
                         nameLib = nameLib.drop(nameLib.index[0])
@@ -2690,8 +2877,6 @@ for task in taskOrder:
                         userLabel = '???'
                     return userLabel
 
-
-                N_TRIALS = 2;
 
                 while True:
 
@@ -2726,6 +2911,7 @@ for task in taskOrder:
                     if vm.getClicks():
 
                         mXY = vm.getPos();
+                        print('gloss level: ', ans)
                         vm.resetClicks();
                         mX=int(mXY[0]);
                         mY=int(mXY[1]);
@@ -2749,54 +2935,61 @@ for task in taskOrder:
                     if g1.opacity == 1:
                         ans = 'gloss level 1';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     if g2.opacity == 1:
                         ans = 'gloss level 2';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     if g3.opacity == 1:
                         ans = 'gloss level 3';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     if g4.opacity == 1:
                         ans = 'gloss level 4';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     if g5.opacity == 1:
                         ans = 'gloss level 5';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     if g6.opacity == 1:
                         ans = 'gloss level 6';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     if g7.opacity == 1:
                         ans = 'gloss level 7';
                         data_dict[key] = ans;
+                        # print('gloss level: ', ans)
 
                     next_inc, i, text, rated = nextEval(next_inc, i, im, text, rated, win, dataDict, logFilePrefix, ans);
 
-                    RESET_KEYS = event.getKeys('f')
-                    if len(RESET_KEYS) > 0:
-
-                        next_inc = 0;
-                        text = '';
-                        rated = False;
-
-                        index = findImageIndex(imageName);
-
-                        image = im.image;
-                        nuissance = './stimuli/size/';
-                        image = image.replace(nuissance, '');
-                        nuissance = '.jpg.png-gaussian.png';
-                        image = image.replace(nuissance, '');
-
-                        fileName = 'sizeGloss_DATA_IMAGE_{}_glossMatching'.format(imageName);
-                        savedFrame = logFileDir + fileName + '.png';
-                        win.getMovieFrame(buffer='front');
-                        win.saveMovieFrames(savedFrame);
-
-                        win.flip()
+                    # RESET_KEYS = event.getKeys('f')
+                    # if len(RESET_KEYS) > 0:
+                    #
+                    #     next_inc = 0;
+                    #     text = '';
+                    #     rated = False;
+                    #
+                    #     index = findImageIndex(imageName);
+                    #
+                    #     image = im.image;
+                    #     nuissance = './stimuli/size/';
+                    #     image = image.replace(nuissance, '');
+                    #     nuissance = '.jpg.png-gaussian.png';
+                    #     image = image.replace(nuissance, '');
+                    #
+                    #     fileName = 'sizeGloss_DATA_IMAGE_{}_glossMatching'.format(imageName);
+                    #     savedFrame = logFileDir + fileName + '.png';
+                    #     win.getMovieFrame(buffer='front');
+                    #     win.saveMovieFrames(savedFrame);
+                    #
+                    #     win.flip()
 
                     scrnText.text = text;
                     if TASK_DONE == True:
@@ -2830,6 +3023,14 @@ for task in taskOrder:
                         del g1, g2, g3, g4, g5, g6, g7
                         del r1_text, r2_text, r3_text, r4_text, r5_text, r6_text, r7_text
 
+
+                        taskInfo['glossMatching']=True;
+                        # WRITE
+                        logFilePrefix = '_DATA_taskInfo.csv';
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+                        df = pd.DataFrame(taskInfo).T
+                        df.to_csv(logFileName, index = False, header=True)
+
                         # del win, mouse, vm
                         break
 
@@ -2850,7 +3051,7 @@ for task in taskOrder:
                 def saveData(dataDict):
 
                     logFilePrefix = '_DATA_shineMapping.csv';
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
                     cols = [
                         'pointKey',
@@ -2891,7 +3092,7 @@ for task in taskOrder:
                     imageName = imageName.replace(nuissance, '')
 
                     logFilePrefix = '_DATA_shineMapping.csv';
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
                     df = pd.DataFrame.from_dict(gridInfo, orient='index')
                     df.to_csv(logFileName, index = False, header=True)
@@ -3036,7 +3237,7 @@ for task in taskOrder:
                     nuissance = '.jpg.png-gaussian.png';
                     imageName = imageName.replace(nuissance, '')
                     logFilePrefix = 'IMAGE_{}_shineMapping.png'.format(imageName);
-                    logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                    logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                     savedFrame = logFileName;
                     win.getMovieFrame(buffer='front');
                     win.saveMovieFrames(savedFrame);
@@ -3135,7 +3336,7 @@ for task in taskOrder:
                 def object_names(imageName):
                     try:
                         logFilePrefix = '_DATA_objectNaming.csv';
-                        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                         nameLib = pd.read_csv(logFileName);
                         nameLib = nameLib.T
                         nameLib = nameLib.drop(nameLib.index[0])
@@ -3323,7 +3524,7 @@ for task in taskOrder:
                         nuissance = '.jpg.png-gaussian.png';
                         imageName = imageName.replace(nuissance, '')
                         logFilePrefix = 'IMAGE_{}_shineMapping.png'.format(imageName);
-                        logFileName = logFileDir + studyIDPrefix + subjectIDPrefix + logFilePrefix;
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                         savedFrame = logFileName;
                         win.getMovieFrame(buffer='front');
                         win.saveMovieFrames(savedFrame);
@@ -3401,6 +3602,12 @@ for task in taskOrder:
 
                     if TASK_DONE == True:
                         print('...SHINE MAPPING TASK COMPLETE')
+                        taskInfo['shineMapping']=True;
+                        # WRITE
+                        logFilePrefix = '_DATA_taskInfo.csv';
+                        logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+                        df = pd.DataFrame(taskInfo).T
+                        df.to_csv(logFileName, index = False, header=True)
                         event.waitKeys()
                         break
 
@@ -3412,7 +3619,7 @@ for task in taskOrder:
 
 print('...EXPERIMENT COMPLETE')
 
-win.close()
+# win.close()
 core.quit()
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
