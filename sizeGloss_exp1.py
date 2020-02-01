@@ -48,7 +48,6 @@ def getTaskObjects(*args):
         print('TASK OBJECTS:')
         for i in taskObjectList:
             print(i)
-
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 N_TRIALS = 5;
@@ -81,9 +80,9 @@ def setupTask():
 taskOrder = [
 'subjectInfo',
 # 'objectNaming',
-'sizeRanking',
+# 'sizeRanking',
 # 'distanceRanking',
-# 'glossMatching',
+'glossMatching',
 # 'shineMapping',
 ];
 #------------------------------------------------------------------------------#
@@ -94,9 +93,9 @@ taskOrder = [
 taskChecklist = [
 'subjectInfo',
 # 'objectNaming',
-'sizeRanking',
+# 'sizeRanking',
 # 'distanceRanking',
-# 'glossMatching',
+'glossMatching',
 # 'shineMapping',
 ];
 #------------------------------------------------------------------------------#
@@ -2424,6 +2423,18 @@ for task in taskOrder:
                 logFilePrefix = '_DATA_glossMatching.csv';
                 logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
 
+
+                gls = [
+                'g1',
+                'g2',
+                'g3',
+                'g4',
+                'g5',
+                'g6',
+                'g7',
+                ];
+
+
                 i = 0;
                 next_inc = 0;
                 text = None;
@@ -2516,6 +2527,10 @@ for task in taskOrder:
                 g6 = visual.ImageStim(win, image=glossKey[5], units='pix');
                 g7 = visual.ImageStim(win, image=glossKey[6], units='pix');
 
+                def glObjEval(glStrPrefix):
+                    for gl in gls:
+                        glo = eval(gl + glStrPrefix);
+
                 g1.size = g1.size * 1;
                 g2.size = g2.size * 1;
                 g3.size = g3.size * 1;
@@ -2592,6 +2607,13 @@ for task in taskOrder:
                 scrnText.pos = (0, -275);
 
                 match.autoDraw = True;
+
+                # for gl in gls:
+                #     glo = eval(gl + '.opacity');
+                #     if glo == 1:
+                #         ans = 'gloss level ' + (gl.replace('g', ''));
+                #         data_dict[key] = ans;
+
                 g1.autoDraw = True;
                 g2.autoDraw = True;
                 g3.autoDraw = True;
@@ -2599,6 +2621,9 @@ for task in taskOrder:
                 g5.autoDraw = True;
                 g6.autoDraw = True;
                 g7.autoDraw = True;
+
+
+
                 choice.autoDraw = True;
                 scrnText.autoDraw = True;
                 endBlock.autoDraw = True;
@@ -2932,40 +2957,11 @@ for task in taskOrder:
 
                     image = im.image;
 
-                    if g1.opacity == 1:
-                        ans = 'gloss level 1';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
-
-                    if g2.opacity == 1:
-                        ans = 'gloss level 2';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
-
-                    if g3.opacity == 1:
-                        ans = 'gloss level 3';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
-
-                    if g4.opacity == 1:
-                        ans = 'gloss level 4';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
-
-                    if g5.opacity == 1:
-                        ans = 'gloss level 5';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
-
-                    if g6.opacity == 1:
-                        ans = 'gloss level 6';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
-
-                    if g7.opacity == 1:
-                        ans = 'gloss level 7';
-                        data_dict[key] = ans;
-                        # print('gloss level: ', ans)
+                    for gl in gls:
+                        glo = eval(gl + '.opacity');
+                        if glo == 1:
+                            ans = 'gloss level ' + (gl.replace('g', ''));
+                            data_dict[key] = ans;
 
                     next_inc, i, text, rated = nextEval(next_inc, i, im, text, rated, win, dataDict, logFilePrefix, ans);
 
