@@ -1,7 +1,6 @@
 import numpy as np
-import cv2
+import glob, cv2
 from PIL import Image
-import glob
 
 def imNames():
     try:
@@ -14,19 +13,24 @@ def imNames():
     except:
         print('done')
 
+ims = imNames();
 
-# Load an color image in grayscale
-path='maskTest.jpg';
+try:
+    for path in ims:
+        # print(im)
+        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
-image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        #make mask of where the transparent bits are
+        trans_mask = image[:,:,3] == 0
 
-#make mask of where the transparent bits are
-trans_mask = image[:,:,3] == 0
+        #replace areas of transparency with green pixels
+        image[trans_mask] = [0, 255, 0, 0]
 
-#replace areas of transparency with green pixels
-image[trans_mask] = [0, 255, 0, 0]
+        #new image without alpha channel...
+        new_img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR);
+        path = path.replace('.png', '.jpg');
+        path = path.replace('./ims/', './ims/gb/');
+        cv2.imwrite(path,new_img)
 
-#new image without alpha channel...
-new_img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
-fileName = '_gb.jpg'
-cv2.imwrite(fileName,new_img)
+except:
+    print('done') 
