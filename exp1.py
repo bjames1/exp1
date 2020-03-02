@@ -2,12 +2,13 @@
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 """
-                      File    :   "sizeGloss.py"
+                      File    :   "exp1.py"
                       Author  :   James Michael Brown
                       Updated :   March 2, 2020
 """
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+# Load Modules
 from psychopy import visual, event, core, gui, logging, monitors
 from psychopy.hardware import keyboard
 from pathlib import Path
@@ -17,31 +18,8 @@ import pandas as pd
 import numpy as np
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-subjectID = '000';
-studyIDPrefix = 'sizeGloss_exp1_';
-logFileDir = './data/{}/'.format(subjectID)
-Path(logFileDir).mkdir(parents=True, exist_ok=True)
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-
-# TASK PARAMETERS
-
+# Task Parameters
 N_TRIALS = 5;
-
-taskList = [
-
-            'subjectInfo',
-
-            'objectNaming',
-
-            'BLANK'
-];
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-BG_PATH = './stimuli/background';
-BG_FILE = './stimuli/background/background.png.zip';
-unzipper = zipfile.ZipFile(BG_FILE, 'r');
-unzipper.extractall(BG_PATH); unzipper.close();
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 def getTaskObjects(*args):
@@ -62,6 +40,11 @@ def getTaskObjects(*args):
         print('TASK OBJECTS:')
         for i in taskObjectList:
             print(i)
+#------------------------------------------------------------------------------#
+#---------------------------------------------------------------------------
+def whiteSpace():
+    for i in range(5):
+        print('')
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 def setupTask():
@@ -95,11 +78,12 @@ def setupTask():
 
 # demographics
 cols = [
+    'ID',
     'First Name',
     'Last Name',
     'Middle Initial',
-    'age',
-    'gender'
+    'Age',
+    'Gender'
 ];
 
 # setup data entry fields
@@ -108,8 +92,8 @@ info = {
     cols[1]:'',
     cols[2]:'',
     cols[3]:'',
-    cols[4]:['male', 'female', 'transgender', 'non-binary', 'prefer not to say']
-
+    cols[4]:'',
+    cols[5]:['male', 'female', 'transgender', 'non-binary', 'prefer not to say'],
 };
 
 # create Dlg from Dict
@@ -121,7 +105,8 @@ fileDlg = gui.DlgFromDict(
     cols[1],
     cols[2],
     cols[3],
-    cols[4]
+    cols[4],
+    cols[5],
 ]);
 
 #---Build Logging File
@@ -135,12 +120,42 @@ if gui.OK:
             print('...Session Cancelled')
             core.quit()
         else:
-            pass
 
-    studyIDPrefix = 'sizeGloss_exp1_';
-    logFileDir = './data/{}/'.format(subjectID)
+            ID_resp = int(Dlg_Responses[0]);
+
+            studyIDPrefix = 'sizeGloss_exp1_';
+            df_sampleFrame = pd.read_excel('sizeGloss_exp1_SampleFrame.xlsx', index_col=0);
+
+            subject_numbers = df_sampleFrame['subject #'];
+            subject_IDs = df_sampleFrame['ID'];
+
+            ID_index = list(subject_numbers).index(ID_resp);
+            subjectID = str(list(subject_IDs)[ID_index]);
+
+            subjectTask = list(df_sampleFrame['task'])[list(subject_numbers).index(ID_resp)];
+
+            taskList = ['subjectInfo', 'objectNaming', subjectTask];
+            logFileDir = './data/{}/'.format(subjectID);
+
+            dirExists = os.path.isdir(logFileDir)
+
+            if dirExists == True:
+                whiteSpace()
+                print('...directory already exists!')
+                print('...quitting experiment!')
+                whiteSpace()
+                core.quit()
+            else:
+                pass
+
+    if dirExists == False:
+        print('...directory does not already exist.')
+        print('...creating directory.')
+        os.makedirs(logFileDir)
+
     logFilePrefix = '_DATA_subjectInfo.csv';
     logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
+
     df = pd.DataFrame([info], columns = cols);
     df.to_csv(logFileName, index = False, header=True);
 
@@ -151,12 +166,6 @@ if gui.OK:
     for task in taskList:
         taskInfo.update({task:{'taskCompleted':False}});
 
-    # taskInfo.update({'subjectInfo':{'taskCompleted':False}});
-    # taskInfo.update({'objectNaming':{'taskCompleted':False}});
-    # taskInfo.update({'sizeRanking':{'taskCompleted':False}});
-    # taskInfo.update({'distanceRanking':{'taskCompleted':False}});
-    # taskInfo.update({'glossMatching':{'taskCompleted':False}});
-    # taskInfo.update({'shineMapping':{'taskCompleted':False}});
 
     taskInfo['subjectInfo']['taskCompleted']=True;
     logFilePrefix = '_DATA_taskInfo.csv';
@@ -167,10 +176,12 @@ if gui.OK:
 
     print('...All Participant Data Logged!')
     print('...Beginning Session')
-
-win, mouse, vm = setupTask()
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+win, mouse, vm = setupTask();
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 for task in taskList:
-    # win, mouse, vm = setupTask()
     try:
 
         #########################
@@ -560,8 +571,8 @@ for task in taskList:
                         message,
                         txt,
                         next_inc,
-                        # taskInfo['objectNaming']=True;
                         taskInfo['objectNaming']['taskCompleted']=True;
+
                         # WRITE
                         logFilePrefix = '_DATA_taskInfo.csv';
                         logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
@@ -579,6 +590,12 @@ for task in taskList:
         #########################
 
         if task == 'sizeRanking':
+
+            # Setup Background Image
+            BG_PATH = './stimuli/background';
+            BG_FILE = './stimuli/background/background.png.zip';
+            unzipper = zipfile.ZipFile(BG_FILE, 'r');
+            unzipper.extractall(BG_PATH); unzipper.close();
 
             try:
                 print('...STARTING SIZE RANKING TASK')
@@ -1576,11 +1593,7 @@ for task in taskList:
                 def shrink(win, vm, zoomImage, selection2, selection):
 
                     selection.setOpacity(0)
-
-                    # HERE HERE HERE
                     selection2.setOpacity(0);
-                    # selection2.setOpacity(1);
-
                     zoomBackground.setOpacity(0);
                     zoomImage.setOpacity(0);
                     zoomImage.opacity = 0;
@@ -1753,7 +1766,7 @@ for task in taskList:
                 def resetter_keys(switcher_VAR, vm, sCOUNTS, zCOUNTS):
                     popped_size = len(popped_dictionary);
                     SWITCHER_KEYS = event.getKeys('f')
-                    # HERE HERE HERE
+
                     if len(SWITCHER_KEYS) > 0 and popped_size > 0 and sCOUNTS == 0 and zCOUNTS == 0 and switcher_VAR != True:
                         tmp_dict = dictObj2();
                         for i in switch_dict:
@@ -1903,7 +1916,7 @@ for task in taskList:
                         image_dict.update({'im'+str(i):images_key[i]})
                     except IndexError:
                         image_dict.update({'im'+str(i):None})
-                    # continue
+
                 popped_images = {};
 
                 def mouse_pos(vm):
@@ -2398,6 +2411,12 @@ for task in taskList:
         ###########################
 
         if task == 'distanceRanking':
+
+            # Setup Background Image
+            BG_PATH = './stimuli/background';
+            BG_FILE = './stimuli/background/background.png.zip';
+            unzipper = zipfile.ZipFile(BG_FILE, 'r');
+            unzipper.extractall(BG_PATH); unzipper.close();
 
             try:
 
@@ -3224,7 +3243,7 @@ for task in taskList:
 
                     sort01_KEYS = event.getKeys('t')
                     if len(sort01_KEYS) > 0:
-                        # sort01_vert.setOpacity(1);
+
                         print('image3.pos: ', image3.pos)
                         print('image3.image: ', image3.image)
                         print('image4.pos: ', image4.pos)
@@ -3567,7 +3586,7 @@ for task in taskList:
                 def resetter_keys(switcher_VAR, vm, sCOUNTS, zCOUNTS):
                     popped_size = len(popped_dictionary);
                     SWITCHER_KEYS = event.getKeys('f')
-                    # HERE HERE HERE
+
                     if len(SWITCHER_KEYS) > 0 and popped_size > 0 and sCOUNTS == 0 and zCOUNTS == 0 and switcher_VAR != True:
                         tmp_dict = dictObj2();
                         for i in switch_dict:
@@ -4418,13 +4437,10 @@ for task in taskList:
                 g6.autoDraw = True;
                 g7.autoDraw = True;
 
-
-
                 choice.autoDraw = True;
                 scrnText.autoDraw = True;
                 endBlock.autoDraw = True;
                 endText.autoDraw = True;
-
 
                 def quit():
                     QUIT_KEYS = event.getKeys('0')
@@ -4471,7 +4487,6 @@ for task in taskList:
 
                 def ratingEval(rgb_layer2, key, i):
                     if rgb_layer2 == (255, 0, 0):
-                        # ans = 'gloss level 1'
                         ans = 'gloss level 1'
                         g1.opacity = 1;
                         g2.opacity = 0;
@@ -4724,7 +4739,6 @@ for task in taskList:
                         fileNames = data_dict.keys();
                         glossLevels = data_dict.values();
 
-
                     im.draw();
                     vm.draw();
                     rated = restartTrial(rated, choice);
@@ -4810,14 +4824,12 @@ for task in taskList:
                         r6_text.autoDraw = False;
                         r7_text.autoDraw = False;
 
-
                         del endText, im, objectName, endBlock, match, choice, scrnText
                         del g1, g2, g3, g4, g5, g6, g7
                         del r1_text, r2_text, r3_text, r4_text, r5_text, r6_text, r7_text
 
-
-                        # taskInfo['glossMatching']=True;
                         taskInfo['glossMatching']['taskCompleted']=True;
+
                         # WRITE
                         logFilePrefix = '_DATA_taskInfo.csv';
                         logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
@@ -5395,8 +5407,8 @@ for task in taskList:
 
                     if TASK_DONE == True:
                         print('...SHINE MAPPING TASK COMPLETE')
-                        # taskInfo['shineMapping']=True;
                         taskInfo['shineMapping']['taskCompleted']=True;
+
                         # WRITE
                         logFilePrefix = '_DATA_taskInfo.csv';
                         logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
