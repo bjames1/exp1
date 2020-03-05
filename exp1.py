@@ -1539,8 +1539,6 @@ for task in taskList:
                             print('LIST_POPPED_POINTS: ', i);
                             print('LIST_POPPED_(XY): ', popped_dictionary[i]);
                             itemlist.append(i, popped_dictionary[i])
-                        # with open('LIST_POPPED_POINTS', 'wb') as fp:
-                        #     pickle.dump(itemlist, fp)
 
                     N_POPPED_IMAGES = event.getKeys('7')
                     if len(N_POPPED_IMAGES) > 0:
@@ -1892,7 +1890,7 @@ for task in taskList:
                         tmp_point_key2 = switch_dict.pop(point_key2)
                         switch_dict.add(point_key1, tmp_point_key1[0], tmp_point_key2[1])
                         switch_dict.add(point_key2, tmp_point_key2[0], tmp_point_key1[1])
-                    # HERE HERE HERE
+
                     globals()['sCOUNTS']=0;
                     del switch_dict2
 
@@ -3975,13 +3973,6 @@ for task in taskList:
                             index = 0;
                             undealer_VAR, image, bg = zRESETTER_UPDATE(image_key, data_dict);
 
-                        # if sCOUNTS == 0:
-                        #     # del image3, image4
-                        #     image3.opacity = 0;
-                        #     image4.opacity = 0;
-                        #     selection.setOpacity(0);
-                        #     selection2.setOpacity(0);
-
                         if sCOUNTS == 1:
                             selection.setOpacity(1);
                             selection2.setOpacity(0);
@@ -4320,7 +4311,7 @@ for task in taskList:
                         im = visual.ImageStim(win,
                                             image=key,
                                             size = IMAGE_SIZE,
-                                            pos= (-250, 50),
+                                            pos= (-350, 50),
                                             units='pix');
                         return im
 
@@ -4331,7 +4322,7 @@ for task in taskList:
                               lineColor='gray',
                               fillColor='gray');
 
-                match_position = (250, 50);
+                match_position = (350, 50);
                 match.pos = match_position;
 
                 g1 = visual.ImageStim(win, image=glossKey[0], units='pix');
@@ -4423,12 +4414,6 @@ for task in taskList:
 
                 match.autoDraw = True;
 
-                # for gl in gls:
-                #     glo = eval(gl + '.opacity');
-                #     if glo == 1:
-                #         ans = 'gloss level ' + (gl.replace('g', ''));
-                #         data_dict[key] = ans;
-
                 g1.autoDraw = True;
                 g2.autoDraw = True;
                 g3.autoDraw = True;
@@ -4442,21 +4427,26 @@ for task in taskList:
                 endBlock.autoDraw = True;
                 endText.autoDraw = True;
 
+                # reset_inc = 0;
+
                 def quit():
                     QUIT_KEYS = event.getKeys('0')
                     if len(QUIT_KEYS) > 0:
                         core.quit();
                         win.close()
+
                 def next(next_inc):
-                    NEXT_KEYS = event.getKeys('d')
+                    NEXT_KEYS = event.getKeys('return')
                     if len(NEXT_KEYS) > 0:
                         next_inc += 1
                     return next_inc
 
                 def nextEval(next_inc, i, im, message, rated, win, dataDict, logFilePrefix, ans):
-                    next_inc=next(next_inc)
+                    next_inc=next(next_inc);
+
                     if next_inc == 1:
                         message = 'Are you sure?';
+
                     if next_inc == 2:
                         i += 1
                         next_inc = 0;
@@ -4579,7 +4569,6 @@ for task in taskList:
                         g5.opacity = 0;
                         g6.opacity = 0;
                         g7.opacity = 0;
-                        # choice.pos = r1_text_position
                         choice.pos = r4_text_position
                         rated = False;
                     return rated
@@ -4623,8 +4612,6 @@ for task in taskList:
                     df.to_csv(logFileName, index = True, header=True)
 
                 TASK_DONE = False;
-                # dim_value_width, dim_value_height = (1280, 1024);
-
                 dim_value_width, dim_value_height = (1920, 1080);
                 sizeKey = getTaskObjects('size')
 
@@ -4634,7 +4621,6 @@ for task in taskList:
                 layerKey = getTaskObjects('layer')
 
                 def vmX_to_imX(dim_value_width):
-                    # import numpy as np
                     mousePx = np.arange((-1*dim_value_width*.50), (dim_value_width*.50), 1);
                     imagePx = np.arange(0, dim_value_width, 1);
                     class my_dictionary(dict):
@@ -4648,7 +4634,6 @@ for task in taskList:
                     return dict_obj
 
                 def vmY_to_imY(dim_value_height):
-                    # import numpy as np
                     mousePx = np.arange((-1*dim_value_height*.50)+1, (dim_value_height*.50)+1, 1);
                     imagePx = np.arange(0, dim_value_height+1, 1);
                     class my_dictionary(dict):
@@ -4775,28 +4760,6 @@ for task in taskList:
 
                     next_inc, i, text, rated = nextEval(next_inc, i, im, text, rated, win, dataDict, logFilePrefix, ans);
 
-                    # RESET_KEYS = event.getKeys('f')
-                    # if len(RESET_KEYS) > 0:
-                    #
-                    #     next_inc = 0;
-                    #     text = '';
-                    #     rated = False;
-                    #
-                    #     index = findImageIndex(imageName);
-                    #
-                    #     image = im.image;
-                    #     nuissance = './stimuli/size/';
-                    #     image = image.replace(nuissance, '');
-                    #     nuissance = '.jpg.png-gaussian.png';
-                    #     image = image.replace(nuissance, '');
-                    #
-                    #     fileName = 'sizeGloss_DATA_IMAGE_{}_glossMatching'.format(imageName);
-                    #     savedFrame = logFileDir + fileName + '.png';
-                    #     win.getMovieFrame(buffer='front');
-                    #     win.saveMovieFrames(savedFrame);
-                    #
-                    #     win.flip()
-
                     scrnText.text = text;
                     if TASK_DONE == True:
                         saveData(dataDict);
@@ -4836,13 +4799,11 @@ for task in taskList:
                         df = pd.DataFrame(taskInfo).T
                         df.to_csv(logFileName, index = True, header=True)
 
-                        # del win, mouse, vm
                         break
-
-                    # continue
 
             except:
                 core.quit()
+
 
         #########################
         ## TASK: shineMapping  ##
@@ -4906,7 +4867,6 @@ for task in taskList:
                 objectName = visual.TextStim( win,
                                         userLabel,
                                         height = 30,
-                                        # wrapWidth=0,
                                         alignVert='center',
                                         alignHoriz='center',
                                         units='pix');
@@ -5010,9 +4970,7 @@ for task in taskList:
                     lineColor='gray',
                     lineWidth=1.0,
                     fillColor='gray',
-                    # lineColor='grey',
                     units='pix');
-                # block.setOpacity(0);
                 block.pos = (0, 365);
 
                 endBlock = visual.Rect(win=win,
@@ -5021,14 +4979,12 @@ for task in taskList:
                     lineColor='grey',
                     lineWidth=3.0,
                     fillColor='grey',
-                    # lineColor='grey',
                     units='pix');
                 endBlock.setOpacity(0);
 
                 endText = visual.TextStim(win,
                                         text='',
                                         height = 30,
-                                        # wrapWidth=0,
                                         alignVert='center',
                                         alignHoriz='center',
                                         units='pix');
@@ -5171,7 +5127,6 @@ for task in taskList:
                     return im
 
 
-                # N_TRIALS = 2;
                 index = 0;
 
                 while True:
@@ -5244,27 +5199,32 @@ for task in taskList:
                             del point_key;
                             vm.resetClicks();
 
-                        elif  gridInfo[point_key]['opacity'] == 0:
 
-                            clickCount_var+=1;
-                            gridInfo[point_key]['opacity'] = 0.50;
-                            index = gridInfo[point_key]['index']
-                            stim = visual.ElementArrayStim(win,
-                                                           xys=xyCoords,
-                                                           colors='yellow',
-                                                           nElements=len(xyCoords),
-                                                           elementMask=None,
-                                                           elementTex=None,
-                                                           colorSpace='rgb',
-                                                           sizes=(check_size[0],check_size[1]));
-                            stim.size = (check_size[0] * num_check,
-                                         check_size[1] * num_check)
+                        elif  gridInfo[point_key]['opacity'] == 0 and clickCount_var < 30:
 
-                            for i in range(len(gridInfo)):
-                                point_key = 'p' + str(i);
+                                clickCount_var+=1;
+
+                                gridInfo[point_key]['opacity'] = 0.50;
                                 index = gridInfo[point_key]['index']
-                                opacity = gridInfo[point_key]['opacity']
-                                stim.opacities[index] = opacity;
+                                stim = visual.ElementArrayStim(win,
+                                                               xys=xyCoords,
+                                                               colors='yellow',
+                                                               nElements=len(xyCoords),
+                                                               elementMask=None,
+                                                               elementTex=None,
+                                                               colorSpace='rgb',
+                                                               sizes=(check_size[0],check_size[1]));
+                                stim.size = (check_size[0] * num_check,
+                                             check_size[1] * num_check)
+
+                                for i in range(len(gridInfo)):
+                                    point_key = 'p' + str(i);
+                                    index = gridInfo[point_key]['index']
+                                    opacity = gridInfo[point_key]['opacity']
+                                    stim.opacities[index] = opacity;
+
+                        elif  gridInfo[point_key]['opacity'] == 0 and clickCount_var == 30:
+                            pass
 
                             del point_key;
                             vm.resetClicks();
@@ -5331,6 +5291,7 @@ for task in taskList:
                         logFilePrefix = 'IMAGE_{}_shineMapping.png'.format(imageName);
                         logFileName = logFileDir + studyIDPrefix + subjectID + logFilePrefix;
                         savedFrame = logFileName;
+
                         win.getMovieFrame(buffer='front');
                         win.saveMovieFrames(savedFrame);
 
@@ -5353,6 +5314,7 @@ for task in taskList:
                                      check_size[1] * num_check)
 
                         gridInfo = {};
+
                         for i in range(len(xyCoords)):
                             stim.opacities[i] = 0.0;
                             key = 'p' + str(i);
@@ -5403,7 +5365,6 @@ for task in taskList:
                         clickCount_var = 0;
                         counter_var = 0;
                         win.flip()
-
 
                     if TASK_DONE == True:
                         print('...SHINE MAPPING TASK COMPLETE')
